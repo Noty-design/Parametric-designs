@@ -1,0 +1,1393 @@
+/* ==========================================================================
+   STACKABLE BIN / BOX WITH OPTIONAL LID, MOUNTING RAILS, AND ELFA BRACKET
+
+  Designed: NotyDesign
+
+   This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+   ========================================================================== */
+
+/* [Show / Hide Parts] */
+show_box = true;              // Render the main storage bin body.
+show_bracket = false;         // Render the optional Elfa hook bracket.
+show_mounting_rails = true;   // Render the external L-shaped mounting rails.
+show_lid = true;              // Render the separate lid beside the bin.
+
+/* [Box Dimensions] */
+box_length = 150;             // Overall outside length of the bin along Y.
+box_width = 100;              // Overall outside width of the bin along X.
+box_height = 70;              // Maximum outside height of the rear/top area.
+wall_thickness = 1.6;         // Nominal printed wall thickness.
+front_lip_height = 70;        // Height of the front rim/lip before the top slope.
+front_lip_angle = 20;         // Backward lean angle of the front wall and matching lid footprint.
+top_flat_length = 83;         // Rear flat-top section length; the slope starts before this area.
+
+/* [Lid] */
+lid_thickness = 2;            // Main lid panel thickness.
+lid_clearance = 0.3;          // Clearance around the inner lip so the lid fits after printing.
+lid_chamfer = 2;              // Chamfer amount around the lid perimeter.
+lid_follow_box_top = true;    // Split the lid so it follows the sloped and flat box-top sections.
+lid_show_flat_lid = false;    // Show lid flat instead of the following geometry.
+lid_flex_hinge_width = 3;     // Width of the thin living-hinge zone when snap/knuckle hinges are disabled.
+lid_flex_hinge_thickness = 0.8; // Thickness of the flexible living-hinge membrane.
+lid_flex_hinge_gap = 0.6;     // Relief gap beside the living-hinge membrane.
+lid_flex_hinge_overlap = 0.4; // Extra membrane overlap into the two rigid lid panels.
+lid_show_snap_hinge = true;   // Add snap-together hinge clusters at the lid split line.
+lid_show_knuckle_hinge = false; // Add a conventional barrel/knuckle hinge instead of the snap hinge.
+lid_hinge_knuckle_diameter = 5; // Outer diameter for hinge barrels and snap reference geometry.
+lid_hinge_pin_diameter = 2;   // Diameter of hinge pins/rods.
+lid_hinge_knuckle_count = 7;  // Number of segments for the conventional knuckle hinge.
+lid_hinge_gap = 0.35;         // Small gap between hinge segments to prevent fused parts.
+lid_hinge_leaf_depth = 5;     // Depth of the hinge mounting leaves on each lid panel.
+lid_snap_socket_count = 3;    // Number of snap-hinge clusters along the lid split line.
+lid_snap_socket_length = 12;  // Length of each snap socket cluster along X.
+lid_snap_socket_wall = 1.2;   // Wall thickness around each C-shaped snap socket.
+lid_snap_socket_clearance = 0.25; // Radial clearance around the snap pin.
+lid_snap_mouth_width = 1.7;   // Opening width in the C-shaped socket.
+lid_snap_end_knob_diameter = 5; // Larger end knob diameter on each snap pin.
+lid_snap_gap = 2;             // Assembly preview gap between snap pin and snap socket.
+lid_inner_lip_height = 0;     // Height of the lid plug/lip that fits down inside the bin.
+lid_inner_lip_chamfer = 0;    // 0 means "automatically follow lid_chamfer".
+lid_inner_lip_into_lid = 2.5; // How far the inner lip overlaps upward into the lid body.
+lid_grip_width = 34;          // Width of the small raised grip handle.
+lid_grip_depth = 8;           // Front-back depth of the grip handle.
+lid_grip_height = 4;          // Height of the grip handle above the lid.
+
+/* [Sliding Drawer / Rails on Box] */
+enable_sliding_rails = true;  // Add side rails to the bin so it can slide in external rail brackets.
+slider_rail_width = 5.7;      // Rail protrusion width away from the side wall.
+slider_rail_height = 8.1;     // Rail height below the top edge.
+slider_rail_length = 140;     // Rail length; set to 0 to derive from box geometry.
+slider_rail_offset_y = 3.4;   // Rear offset from the box back edge.
+
+/* [L-Shaped Mounting Rails / Fixed Rails] */
+mount_rail_tolerance = 1;     // Extra clearance between sliding rails and fixed mounting rails.
+mount_rail_horizontal_width = 34; // Width of the top horizontal part of the fixed rail.
+mount_rail_horizontal_thickness = 3.2; // Thickness of the rail top plate.
+mount_rail_vertical_thickness = 2.65; // Thickness of the vertical rail wall.
+mount_rail_slot_height = 9.5; // Height of the slot that receives the bin rail.
+mount_rail_lip_width = 8;     // Width of the lower retaining lip.
+mount_rail_lip_thickness = 3.6; // Thickness of the lower retaining lip.
+mount_rail_length_extra = 0.02; // Tiny extension to avoid coincident faces.
+mount_screw_hole_diameter = 4; // Through-hole diameter for mounting screws.
+mount_screw_head_diameter = 9.8; // Countersink/counterbore diameter for screw heads.
+mount_screw_count = 3;        // Number of screw holes per fixed rail.
+mount_back_stopper = true;    // Add a rear stop so the bin cannot slide too far back.
+mount_front_chamfer = 8;      // Chamfer at the front lip for easier insertion.
+
+/* [Wall Rail / Back Indent] */
+enable_rail_indent = false;   // Cut a centered indentation in the back wall.
+rail_indent_depth_val = 26.5; // Depth of the back-wall indentation.
+rail_indent_width = 28;       // Width of the back-wall indentation.
+
+/* [Wall-Mount Bracket / Dovetail] */
+enable_wall_mount = false;    // Add the female dovetail cutout and optional Elfa bracket.
+dovetail_width_wide = 22;     // Wide side of the dovetail profile.
+dovetail_width_narrow = 15;   // Narrow side of the dovetail profile.
+dovetail_depth = 4.5;         // Depth of the dovetail into the back wall.
+dovetail_tolerance = 0.25;    // Clearance for the mating dovetail bracket.
+
+/* [FDM / Stacking Optimizations] */
+stacking_lip_height = 5;      // Bottom plug height for stacking into another bin.
+stacking_tolerance = 0.4;     // Clearance around the stacking plug.
+stacking_transition_height = 6; // Height of the tapered transition from plug to full box.
+base_chamfer = 1;             // Small bottom chamfer to reduce elephant-foot sensitivity.
+corner_radius = 5;            // Outside corner radius used by most rounded profiles.
+include_label_holder = false; // Add a small front label holder.
+
+/* [Exterior Surface Pattern] */
+enable_exterior_pattern = false; // Add decorative/functional wall texture.
+pattern_style = "Extrude";   // "Extrude" adds material; "Cut" removes material.
+maintain_wall_thickness = false; // If cutting, compensate the wall so final thickness is preserved.
+// Exterior pattern dropdown. Keep the bracket list directly after the variable for OpenSCAD Customizer.
+pattern_type = "Hexagon (Honeycomb)"; // [Dots, Hexagon (Honeycomb), Diamonds, Triangles, Vertical Ribs, Horizontal Ribs, Grid, Diagonal Grid, ZigZag, Brick]
+pattern_depth = 1.2;          // Pattern extrusion/cut depth.
+pattern_scale = 11;           // Size of each pattern unit.
+pattern_spacing = 13;         // Center-to-center spacing between pattern units.
+
+/* [Design Holes / Hole Pattern] */
+enable_holes_left = true;     // Cut design holes in the left side wall.
+enable_holes_right = true;    // Cut design holes in the right side wall.
+enable_holes_front = true;    // Cut design holes in the front wall.
+enable_holes_back = true;     // Cut design holes in the back wall.
+enable_holes_bottom = true;   // Cut design holes in the bottom.
+hole_diameter = 8;            // Base hole diameter before shape-specific stretching.
+hole_spacing = 14;            // Spacing between hole centers.
+// Hole shape dropdown. Keep the bracket list directly after the variable for OpenSCAD Customizer.
+hole_shape = "Slot"; // [Circle, Slot, Teardrop, Hexagon, Diamond, Triangle]
+slot_rotation_angle = 25;     // Rotation angle used only by Slot-shaped holes.
+
+/* [Elfa Hook Parameters] */
+number_of_teeth = 2;          // Number of Elfa hook teeth in the bracket.
+bracket_width = 24;           // Overall width of the bracket body.
+backplate_thickness = 2.4;    // Thickness of the bracket backplate.
+tooth_pitch_y = 31;           // Vertical spacing between hook teeth.
+tooth_vertical_offset = 2.5;  // Bottom offset before the first tooth begins.
+bracket_top_margin = 14;      // Extra top margin above the last tooth.
+tooth_depth = 8;              // Hook tooth depth.
+tooth_top_y_front = 15;       // Front top reference of the hook tooth profile.
+tooth_top_y_back = 12;        // Back top reference of the hook tooth profile.
+tooth_hook_height = 20;       // Downward hook height.
+notch_depth = 4;              // Retaining notch depth.
+notch_distance_from_bottom = 6.8; // Notch position from the hook bottom.
+base_bottom_y = 9.7;          // Lower base reference for the tooth polygon.
+hook_tip_chamfer = 1.5;       // Chamfer on the hook tip to ease insertion.
+tooth_inner_distance = 8.3;   // Inner spacing between the two tooth columns.
+tooth_outer_distance = 13.5;  // Outer spacing across the tooth columns.
+tooth_root_chamfer = 2.5;     // Chamfer at the tooth root for strength.
+
+/* [Print Reinforcement] */
+hook_base_width_fillet = 2;   // Extra width around hook base fillets.
+hook_base_height_fillet = 0.5; // Extra height around hook base fillets.
+hook_base_fillet_depth = 3;   // Fillet depth that blends teeth into the backplate.
+
+/* [Colors] */
+box_color = "#02C1D1";        // Main bin and lid color in preview.
+bracket_color = "#4682B4";    // Elfa bracket color in preview.
+mount_color = "#D6C9BF";      // Fixed mounting rail color in preview.
+
+/* [Hidden] */
+// Effective wall thickness. Cutting patterns can optionally preserve final wall thickness.
+effective_wall = wall_thickness + ((enable_exterior_pattern && pattern_style == "Cut" && maintain_wall_thickness) ? pattern_depth : 0);
+
+// Back indent is zeroed when disabled so downstream geometry can use one value.
+rail_indent_depth = enable_rail_indent ? rail_indent_depth_val : 0;
+
+// Hook and bracket helper dimensions derived from the Customizer parameters.
+hook_down_y = tooth_top_y_front - tooth_hook_height;
+bracket_height = tooth_vertical_offset + ((number_of_teeth - 1) * tooth_pitch_y) + bracket_top_margin;
+
+// Tooth-column spacing calculations for the Elfa-style bracket.
+tooth_width_calc = (tooth_outer_distance - tooth_inner_distance) / 2;
+calculated_tooth_pitch_x = tooth_inner_distance + tooth_width_calc;
+
+// Stacking plug and inner box dimensions.
+plug_inset = effective_wall + stacking_tolerance;
+stacking_plug_width = box_width - 2 * plug_inset;
+stacking_plug_length = box_length - 2 * plug_inset;
+box_inner_width = box_width - 2 * effective_wall;
+box_inner_length = box_length - 2 * effective_wall;
+// Lid split position: where the lid divides from sloped front to flat rear
+lid_split_y = box_length - top_flat_length;
+
+
+// Rounded-corner radii after wall and plug offsets.
+inner_radius = max(0.01, corner_radius - effective_wall);
+plug_radius = max(0.01, corner_radius - plug_inset);
+plug_inner_radius = max(0.01, plug_radius - effective_wall);
+
+// Sloped front-wall/top geometry helpers.
+tilt_z_origin = stacking_lip_height + stacking_transition_height;
+slope_origin_y = effective_wall + (front_lip_angle > 0 ? -max(0, front_lip_height - tilt_z_origin) * tan(front_lip_angle) : 0);
+top_shift_y = -max(0, box_height - tilt_z_origin) * tan(front_lip_angle);
+bracket_base_y = box_length - rail_indent_depth;
+
+
+// Helper function: return the box rim/roof height at a given Y position.
+// The model has a front sloped region and a rear flat region, so this central
+// lookup keeps lids, holes, and patterns aligned to the same top profile.
+function box_roof_z(y) =
+    // Front region: keep the rim at front_lip_height until the slope begins.
+    (y <= max(0, slope_origin_y)) ? front_lip_height :
+    // Rear region: the box is already at the full box_height.
+    ((y >= lid_split_y) ? box_height :
+    // Middle region: linearly interpolate between the front rim and rear height.
+    (front_lip_height + (box_height - front_lip_height) * (y - max(0, slope_origin_y)) / (lid_split_y - max(0, slope_origin_y))));
+
+// Helper function: calculate the vertical lid offset at a given Y position.
+// When the lid is flat, this returns zero or a constant preview compensation.
+function lid_form_z(y) =
+    // Flat-preview mode keeps the whole lid at a single height.
+    lid_show_flat_lid ? (lid_follow_box_top ? (box_roof_z(0) - min(front_lip_height, box_height)) : 0) :
+    // Follow mode samples the box roof profile at each Y coordinate.
+    (lid_follow_box_top ? (box_roof_z(y) - min(front_lip_height, box_height)) : 0);
+
+// Helper function: return the Y shift of the tilted front wall at a given Z height.
+// Centralizing this keeps labels, front patterns, and front holes on the same plane.
+function front_wall_y_at_z(z) =
+    -max(0, z - tilt_z_origin) * tan(front_lip_angle);
+
+// === MAIN RENDER FLOW ===
+
+// The main flow deliberately keeps every optional part independent.
+// This makes it easy to export only the bin, only the lid, or only rails/brackets.
+if (show_box) {
+    generate_box();
+}
+
+if (show_lid) {
+    generate_lid();
+}
+
+if (show_bracket && enable_wall_mount) {
+    if (!show_box) {
+        // Stand-alone bracket export orientation: laid out so the bracket can be inspected/printed separately.
+        translate([0, 0, bracket_width/2]) 
+        rotate([0, 90, 0]) 
+        translate([0, 0, -bracket_height/2]) 
+        elfa_bracket_with_dovetail();
+    } else {
+        // Assembled preview position: bracket sits on the back of the bin.
+        translate([0, bracket_base_y, tilt_z_origin]) elfa_bracket_with_dovetail();
+    }
+}
+
+if (show_mounting_rails && enable_sliding_rails) {
+    if (!show_box) {
+        // Stand-alone rail export: place the two rails side by side.
+        translate([-mount_screw_head_diameter - 2, 0, 0]) generate_l_mounting_rail(true);
+        translate([mount_screw_head_diameter + 2, 0, 0]) generate_l_mounting_rail(true);
+    } else {
+        // Assembled preview: rails are shown around the bin rails.
+        generate_mounting_rails_assembled();
+    }
+}
+
+
+/* === MOUNTING RAILS === */
+
+// Module: build the pair of fixed L-shaped mounting rails in assembled preview position.
+// The second rail is mirrored around X=0 so both sides stay symmetric.
+module generate_mounting_rails_assembled() {
+    color(mount_color) {
+        generate_l_mounting_rail(false);
+        mirror([1, 0, 0]) generate_l_mounting_rail(false);
+    }
+}
+
+// Module: place one fixed L-shaped mounting rail.
+// lay_flat=true is used when exporting/printing the rail as its own part.
+// lay_flat=false places it beside the bin with clearance around the bin's sliding rail.
+module generate_l_mounting_rail(lay_flat = false) {
+    // Use the explicit rail length when set, otherwise derive it from the box slope geometry.
+    actual_rail_length = (slider_rail_length > 0) ? slider_rail_length : (box_length - lid_split_y);
+    // The back stopper adds a small extra length at the rear of the rail.
+    total_rail_length = actual_rail_length + mount_rail_length_extra + (mount_back_stopper ? 5 : 0);
+    
+    // Split the L-rail into top horizontal plate and vertical wall parameters.
+    rail_horizontal_width = max(0, mount_rail_horizontal_width);
+    rail_horizontal_thickness = (rail_horizontal_width > 0) ? mount_rail_horizontal_thickness : 0;
+    rail_vertical_thickness = mount_rail_vertical_thickness;
+    
+    if (lay_flat) {
+        // Export orientation: keep a horizontal rail flat, or rotate a no-top rail onto the print bed.
+        if (rail_horizontal_width > 0) {
+            rotate([0, 0, 0]) l_mounting_rail_body(total_rail_length, rail_horizontal_width, rail_horizontal_thickness, rail_vertical_thickness);
+        } else {
+            rotate([0, -90, 0]) translate([rail_vertical_thickness, 0, 0]) l_mounting_rail_body(total_rail_length, rail_horizontal_width, rail_horizontal_thickness, rail_vertical_thickness);
+        }
+    } else {
+        // Assembled position: shift the rail so its slot clears the bin's side rail.
+        inner_wall_x = rail_horizontal_width - rail_vertical_thickness;
+        target_x = box_width/2 + slider_rail_width + mount_rail_tolerance;
+        shift_x = target_x - inner_wall_x;
+        translate([shift_x, box_length - slider_rail_offset_y - actual_rail_length + (mount_back_stopper ? -5 : 0), box_height + mount_rail_tolerance])
+        l_mounting_rail_body(total_rail_length, rail_horizontal_width, rail_horizontal_thickness, rail_vertical_thickness);
+    }
+}
+
+// Module: actual geometry of the fixed rail.
+// The result is an L-profile with a lower retaining lip, optional screw holes,
+// a chamfered front lead-in, and an optional rear stop.
+module l_mounting_rail_body(length, rail_horizontal_width, rail_horizontal_thickness, rail_vertical_thickness) {
+    // Slot and lip dimensions define the receiving channel around the bin side rail.
+    slot_height = mount_rail_slot_height;
+    retaining_lip_width = mount_rail_lip_width;
+    retaining_lip_thickness = mount_rail_lip_thickness;
+    total_drop = slot_height + retaining_lip_thickness;
+    
+    difference() {
+        union() {
+            // Optional top flange for mounting from above.
+            if (rail_horizontal_width > 0) {
+                cube([rail_horizontal_width, length, rail_horizontal_thickness]);
+            }
+            // Vertical side wall of the L-profile.
+            translate([rail_horizontal_width - rail_vertical_thickness, 0, -total_drop]) cube([rail_vertical_thickness, length, total_drop + rail_horizontal_thickness]);
+            // Lower retaining lip that keeps the sliding rail captured.
+            translate([rail_horizontal_width - rail_vertical_thickness - retaining_lip_width, 0, -total_drop]) cube([retaining_lip_width, length, retaining_lip_thickness]);
+            
+            if (rail_horizontal_width > 0) {
+                // Small triangular fillet improves stiffness between top flange and vertical wall.
+                fillet_size = min(2.5, rail_vertical_thickness * 0.8);
+                translate([rail_horizontal_width - rail_vertical_thickness, 0, 0])
+                rotate([-90, 0, 0])
+                linear_extrude(length)
+                polygon([[0, 0], [0, fillet_size], [-fillet_size, 0]]);
+            }
+        }
+        
+        if (mount_front_chamfer > 0) {
+            // Chamfer the lip entrance so the bin rail can slide in more easily.
+            translate([rail_horizontal_width - rail_vertical_thickness - retaining_lip_width - 0.01, -0.01, -total_drop - 0.01])
+            linear_extrude(retaining_lip_thickness + 0.02)
+            polygon([[0, 0], [0, mount_front_chamfer], [retaining_lip_width + 0.02, 0]]);
+        }
+        
+        if (mount_screw_count > 0) {
+            // Evenly distribute screw holes along the rail length.
+            screw_spacing = length / (mount_screw_count + 1);
+            for (i = [1 : mount_screw_count]) {
+                screw_y = i * screw_spacing;
+                
+                if (rail_horizontal_width > 0) {
+                    // Screw holes through the horizontal top flange.
+                    screw_x = (rail_horizontal_width - rail_vertical_thickness) / 2;
+                    translate([screw_x, screw_y, -0.1]) cylinder(d=mount_screw_hole_diameter, h=rail_horizontal_thickness + 0.2, $fn=32);
+                    translate([screw_x, screw_y, -0.01]) cylinder(d1=mount_screw_head_diameter, d2=mount_screw_hole_diameter, h=mount_screw_head_diameter/3 + 0.01, $fn=32);
+                    translate([screw_x, screw_y, -0.02]) cylinder(d=mount_screw_head_diameter, h=0.03, $fn=32);
+                } else {
+                    // Alternate screw orientation for vertical-wall-only rails.
+                    screw_z = -slot_height / 2;
+                    translate([-rail_vertical_thickness - 0.1, screw_y, screw_z]) rotate([0, 90, 0]) cylinder(d=mount_screw_hole_diameter, h=rail_vertical_thickness + 0.2, $fn=32);
+                    translate([-rail_vertical_thickness - 0.01, screw_y, screw_z]) rotate([0, 90, 0]) cylinder(d1=mount_screw_head_diameter, d2=mount_screw_hole_diameter, h=mount_screw_head_diameter/3 + 0.01, $fn=32);
+                    translate([-rail_vertical_thickness + 0.01, screw_y, screw_z]) rotate([0, -90, 0]) cylinder(d=mount_screw_head_diameter, h=10, $fn=32);
+                }
+            }
+        }
+    }
+    
+    if (mount_back_stopper) {
+        // Rear stopper blocks the bin from sliding all the way out the back.
+        stopper_width = retaining_lip_width - 1; 
+        translate([rail_horizontal_width - rail_vertical_thickness - stopper_width, length - 5, -total_drop + retaining_lip_thickness - 0.01])
+        cube([stopper_width, 5, slot_height]);
+    }
+}
+
+
+/* === BOX AND LID === */
+
+// Module: create the finished box.
+// First the outer shell is built, then the hollow interior is subtracted.
+// Cut patterns are removed from the wall; Extrude patterns are added outside it.
+module generate_box() {
+    color(box_color)
+    union() {
+        difference() {
+            build_box_outer_shell();
+            cut_box_inner_void();
+            if (enable_exterior_pattern && pattern_style == "Cut") {
+                draw_exterior_surface_patterns();
+            }
+        }
+        if (enable_exterior_pattern && pattern_style == "Extrude") {
+            difference() {
+                draw_exterior_surface_patterns();
+                cut_box_inner_void();
+            }
+        }
+    }
+}
+
+// Module: create the lid as a separate printable part.
+// If the box is also visible, the lid is shifted aside so the preview/export does not overlap.
+module generate_lid() {
+    color(box_color)
+    translate([show_box ? box_width + 18 : 0, 0, 0])
+    lid_body();
+}
+
+// Module: build the complete lid.
+// This combines the outer plate, optional inner lip/plug, grip, and hinge hardware.
+// It is parameter-heavy because the same code supports several lid variants:
+// - a simple flat lid,
+// - a split lid with a sloped front panel and flat rear panel,
+// - a lid with a living hinge, knuckle hinge, or snap hinge.
+module lid_body() {
+    // The lid overhang keeps the top plate slightly larger than the box opening.
+    // max() guarantees at least a small printable overlap even with tiny clearances.
+    lid_overhang = max(0.6, lid_clearance);
+    lid_width = box_width + 2 * lid_overhang;
+    lid_length = box_length + 2 * lid_overhang;
+    lid_corner_radius = corner_radius + lid_overhang;
+    // Limit the chamfer so it never exceeds the lid thickness.
+    lid_chamfer_actual = min(lid_chamfer, lid_thickness);
+
+    // Inner lip dimensions. The lip fits inside the box and can overlap into the lid for strength.
+    // The overlap is capped by lid_thickness so the plug cannot extend above the lid body.
+    lid_inner_lip_overlap = (lid_inner_lip_height > 0) ? min(max(0, lid_inner_lip_into_lid), lid_thickness) : 0;
+    lid_inner_lip_chamfer_target = (lid_inner_lip_chamfer > 0) ? lid_inner_lip_chamfer : lid_chamfer_actual;
+    // The chamfer cannot be taller than the lip itself.
+    lid_inner_lip_chamfer_actual = (lid_inner_lip_height > 0) ? min(lid_inner_lip_chamfer_target, lid_inner_lip_height) : 0;
+    lid_inner_lip_straight_height = max(0, lid_inner_lip_height - lid_inner_lip_chamfer_actual);
+
+    // Outer and inner rounded profiles for the plug/lip wall.
+    // The outer lip profile is sized from the box inner opening minus print clearance.
+    lid_inner_lip_outer_width = box_inner_width - 2 * lid_clearance;
+    lid_inner_lip_outer_length = box_inner_length - 2 * lid_clearance;
+    lid_inner_lip_outer_radius = max(0.01, inner_radius - lid_clearance);
+    // The top profile grows outward by the chamfer amount to make a tapered lead-in.
+    lid_inner_lip_top_outer_width = lid_inner_lip_outer_width + 2 * lid_inner_lip_chamfer_actual;
+    lid_inner_lip_top_outer_length = lid_inner_lip_outer_length + 2 * lid_inner_lip_chamfer_actual;
+    lid_inner_lip_top_outer_radius = lid_inner_lip_outer_radius + lid_inner_lip_chamfer_actual;
+    // The inner profile hollows the plug so it remains a wall instead of a solid block.
+    lid_inner_lip_inner_width = lid_inner_lip_outer_width - 2 * effective_wall;
+    lid_inner_lip_inner_length = lid_inner_lip_outer_length - 2 * effective_wall;
+    lid_inner_lip_inner_radius = max(0.01, lid_inner_lip_outer_radius - effective_wall);
+    lid_inner_lip_top_inner_width = lid_inner_lip_inner_width + 2 * lid_inner_lip_chamfer_actual;
+    lid_inner_lip_top_inner_length = lid_inner_lip_inner_length + 2 * lid_inner_lip_chamfer_actual;
+    lid_inner_lip_top_inner_radius = lid_inner_lip_inner_radius + lid_inner_lip_chamfer_actual;
+
+    difference() {
+        union() {
+            // Main lid plate. formed_lid_plate() dispatches to flat or split/following-lid geometry.
+            formed_lid_plate(
+                lid_width, lid_length, lid_corner_radius, -lid_overhang,
+                lid_inner_lip_height, lid_thickness, lid_chamfer_actual
+            );
+
+            // Optional inner plug/lip. In follow mode it is shaped with the same split panel logic.
+            if (lid_inner_lip_height > 0) {
+                if (lid_follow_box_top) {
+                    formed_lid_plate(
+                        lid_inner_lip_outer_width, lid_inner_lip_outer_length, lid_inner_lip_outer_radius,
+                        effective_wall + lid_clearance,
+                        0, lid_inner_lip_height + lid_inner_lip_overlap, 0
+                    );
+                } else {
+                    if (lid_inner_lip_straight_height > 0) {
+                        translate([0, effective_wall + lid_clearance, 0])
+                        linear_extrude(lid_inner_lip_straight_height + 0.01)
+                        shifted_rounded_box_2d(lid_inner_lip_outer_width, lid_inner_lip_outer_length, lid_inner_lip_outer_radius, top_shift_y);
+                    }
+
+                    // Taper the upper lip into the lid so it does not form a hard unsupported corner.
+                    hull() {
+                        translate([0, effective_wall + lid_clearance, lid_inner_lip_straight_height])
+                        linear_extrude(0.01)
+                        shifted_rounded_box_2d(lid_inner_lip_outer_width, lid_inner_lip_outer_length, lid_inner_lip_outer_radius, top_shift_y);
+
+                        translate([0, effective_wall + lid_clearance - lid_inner_lip_chamfer_actual, lid_inner_lip_height + lid_inner_lip_overlap])
+                        linear_extrude(0.01)
+                        shifted_rounded_box_2d(lid_inner_lip_top_outer_width, lid_inner_lip_top_outer_length, lid_inner_lip_top_outer_radius, top_shift_y);
+                    }
+                }
+            }
+
+            // Optional raised handle/grip near the rear of the lid.
+            grip_y = box_length - lid_grip_depth - 10;
+            grip_embed = lid_follow_box_top ? min(0.4, lid_grip_height / 2) : 0;
+            grip_z = lid_inner_lip_height + lid_thickness + min(lid_form_z(grip_y), lid_form_z(grip_y + lid_grip_depth)) - grip_embed;
+            translate([0, grip_y, grip_z])
+            rounded_grip(lid_grip_width, lid_grip_depth, lid_grip_height);
+
+            // Optional hinge hardware is only meaningful when the lid follows/splits at the box top.
+            if (lid_follow_box_top && lid_show_snap_hinge) {
+                lid_snap_hinge(lid_width, lid_inner_lip_height + lid_thickness);
+            } else if (lid_follow_box_top && lid_show_knuckle_hinge) {
+                lid_knuckle_hinge(lid_width, lid_inner_lip_height + lid_thickness);
+            }
+        }
+
+        // Hollow out the inner plug/lip so it remains a wall instead of a solid block.
+        if (lid_inner_lip_height > 0) {
+            if (lid_follow_box_top) {
+                formed_lid_plate(
+                    lid_inner_lip_inner_width, lid_inner_lip_inner_length, lid_inner_lip_inner_radius,
+                    effective_wall + lid_clearance + effective_wall,
+                    -0.01, lid_inner_lip_height + 0.03, 0
+                );
+            } else {
+                if (lid_inner_lip_straight_height > 0) {
+                    translate([0, effective_wall + lid_clearance + effective_wall, -0.01])
+                    linear_extrude(lid_inner_lip_straight_height + 0.03)
+                    shifted_rounded_box_2d(lid_inner_lip_inner_width, lid_inner_lip_inner_length, lid_inner_lip_inner_radius, top_shift_y);
+                }
+
+                // Tapered inner cutout mirrors the tapered outer lip.
+                hull() {
+                    translate([0, effective_wall + lid_clearance + effective_wall, lid_inner_lip_straight_height])
+                    linear_extrude(0.01)
+                    shifted_rounded_box_2d(lid_inner_lip_inner_width, lid_inner_lip_inner_length, lid_inner_lip_inner_radius, top_shift_y);
+
+                    translate([0, effective_wall + lid_clearance + effective_wall - lid_inner_lip_chamfer_actual, lid_inner_lip_height + lid_inner_lip_overlap + 0.02])
+                    linear_extrude(0.01)
+                    shifted_rounded_box_2d(lid_inner_lip_top_inner_width, lid_inner_lip_top_inner_length, lid_inner_lip_top_inner_radius, top_shift_y);
+                }
+            }
+        }
+    }
+}
+
+// Module: choose which type of lid plate to build.
+// The same helper is used for both the main lid and the inner lip.
+module formed_lid_plate(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer) {
+    if (lid_follow_box_top) {
+        split_flex_lid_plate(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer);
+    } else {
+        simple_flat_lid_plate(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer);
+    }
+}
+
+// Module: split a lid plate into a sloped front panel and a flat rear panel.
+// The split happens at lid_split_y, matching the box transition into the flat rear top.
+// If no mechanical hinge is enabled, a thin flexible bridge connects the panels.
+module split_flex_lid_plate(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer) {
+    y_front = y_offset;
+    y_back = y_offset + plate_length;
+    // Clamp the hinge line so it always lands inside this particular plate footprint.
+    y_hinge = min(max(lid_split_y, y_front), y_back);
+    // Limit hinge width/gap to sane values so very short lids still generate valid panels.
+    hinge_w = min(max(0.01, lid_flex_hinge_width), max(0.01, y_back - y_front));
+    hinge_gap = min(max(0, lid_flex_hinge_gap), hinge_w / 2);
+    // Compute the hinge band and the two panel limits around that band.
+    hinge_front = max(y_front, y_hinge - hinge_w / 2);
+    hinge_back = min(y_back, y_hinge + hinge_w / 2);
+    panel_front_end = max(y_front, hinge_front - hinge_gap / 2);
+    panel_back_start = min(y_back, hinge_back + hinge_gap / 2);
+    // Flex membrane thickness is capped by the rigid lid thickness.
+    flex_thickness = min(thickness, max(0.2, lid_flex_hinge_thickness));
+    bridge_overlap = min(max(0, lid_flex_hinge_overlap), hinge_w / 2);
+
+    // Front panel: follows the sloped top profile of the box.
+    if (panel_front_end > y_front) {
+        sloped_lid_segment(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer, y_front, panel_front_end);
+    }
+
+    // Optional living hinge: a thin membrane between the two rigid panels.
+    if (!lid_show_knuckle_hinge && !lid_show_snap_hinge) {
+        living_hinge_bridge(plate_width, plate_length, plate_corner_radius, y_offset, z_base, flex_thickness, hinge_front - bridge_overlap, hinge_back + bridge_overlap);
+    }
+
+    // Rear panel: flat because the rear top of the box is flat.
+    if (y_back > panel_back_start) {
+        flat_lid_segment(plate_width, plate_length, plate_corner_radius, y_offset, z_base + lid_form_z(y_back), thickness, chamfer, panel_back_start, y_back);
+    }
+}
+
+// Module: create the thin flexible bridge used as a living hinge.
+// This is intentionally simple: a thin sloped membrane clipped by the lid footprint.
+module living_hinge_bridge(plate_width, plate_length, plate_corner_radius, y_offset, z_base, flex_thickness, y_min, y_max) {
+    if (y_max > y_min) {
+        // z_min/z_max create an extrusion volume large enough to contain the sloped membrane.
+        z_min = z_base + min(lid_form_z(y_min), lid_form_z(y_max)) - 0.05;
+        z_max = z_base + max(lid_form_z(y_min), lid_form_z(y_max)) + flex_thickness + 0.05;
+
+        intersection() {
+            // First shape: full rounded lid footprint, extruded through the membrane height.
+            translate([0, y_offset, z_min])
+            linear_extrude(z_max - z_min)
+            shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, 0);
+
+            // Second shape: a sloped side-profile strip. The intersection clips it to the lid outline.
+            translate([-plate_width / 2 - 1, 0, 0])
+            rotate([90, 0, 90])
+            linear_extrude(plate_width + 2)
+            polygon([
+                [y_min, z_base + lid_form_z(y_min)],
+                [y_max, z_base + lid_form_z(y_max)],
+                [y_max, z_base + lid_form_z(y_max) + flex_thickness],
+                [y_min, z_base + lid_form_z(y_min) + flex_thickness]
+            ]);
+        }
+    }
+}
+
+// Module: conventional barrel/knuckle hinge.
+// Segments alternate between the front and rear lid panels so a pin can run through the barrels.
+module lid_knuckle_hinge(lid_width, z_top) {
+    hinge_y = lid_split_y;
+    // Place the hinge axis just above the lid top at the split line.
+    hinge_z = z_top + lid_form_z(lid_split_y) + lid_hinge_knuckle_diameter / 2;
+    // Force at least three segments so the pattern can alternate front/rear/front.
+    hinge_segment_count = max(3, floor(lid_hinge_knuckle_count));
+    hinge_segment_length = lid_width / hinge_segment_count;
+    gap = max(0, lid_hinge_gap);
+    hinge_leaf_depth = max(0.4, lid_hinge_leaf_depth);
+    // Keep a printable wall around the pin hole by deriving the barrel and pin sizes together.
+    barrel_diameter = max(lid_hinge_pin_diameter + 1, lid_hinge_knuckle_diameter);
+    pin_diameter = min(lid_hinge_pin_diameter, barrel_diameter - 0.8);
+
+    for (i = [0 : hinge_segment_count - 1]) {
+        // Each segment gets a short barrel along X.
+        segment_x_start = -lid_width / 2 + i * hinge_segment_length + gap / 2;
+        segment_length = max(0.4, hinge_segment_length - gap);
+        is_front_leaf = (i % 2 == 0);
+
+        translate([segment_x_start, hinge_y, hinge_z])
+        rotate([0, 90, 0])
+        difference() {
+            cylinder(d=barrel_diameter, h=segment_length, $fn=32);
+            translate([0, 0, -0.1]) cylinder(d=pin_diameter, h=segment_length + 0.2, $fn=24);
+        }
+
+        if (is_front_leaf) {
+            // Front-side leaf attaches this barrel segment to the sloped/front panel.
+            translate([segment_x_start, hinge_y - hinge_leaf_depth, z_top + lid_form_z(lid_split_y - hinge_leaf_depth) - 0.2])
+            cube([segment_length, hinge_leaf_depth, min(lid_thickness, 1.2)]);
+        } else {
+            // Rear-side leaf attaches this barrel segment to the flat/rear panel.
+            translate([segment_x_start, hinge_y, z_top + lid_form_z(lid_split_y + hinge_leaf_depth) - 0.2])
+            cube([segment_length, hinge_leaf_depth, min(lid_thickness, 1.2)]);
+        }
+    }
+}
+
+// Module: snap hinge that can be pressed together after printing.
+// Each cluster has a short pin with larger end knobs and a matching C-shaped socket.
+// Pin and socket are shown with a small gap so the halves can snap together.
+module lid_snap_hinge(lid_width, z_top) {
+    hinge_y = lid_split_y;
+    // Use the same hinge axis as the split line so the parts pivot around the visual seam.
+    hinge_z = z_top + lid_form_z(lid_split_y) + lid_hinge_knuckle_diameter / 2;
+    hinge_leaf_depth = max(0.4, lid_hinge_leaf_depth);
+    pin_diameter = max(1, lid_hinge_pin_diameter);
+    // Socket size is derived from pin diameter, radial clearance, and socket wall thickness.
+    socket_inner_diameter = pin_diameter + max(0, lid_snap_socket_clearance) * 2;
+    socket_outer_diameter = socket_inner_diameter + max(0.6, lid_snap_socket_wall) * 2;
+    // Limit mouth width so it can flex over the pin without deleting too much of the socket.
+    socket_mouth_width = min(socket_outer_diameter * 0.85, max(pin_diameter * 0.55, lid_snap_mouth_width));
+    socket_count = max(1, floor(lid_snap_socket_count));
+    // Auto length gives a useful default when lid_snap_socket_length is set to 0.
+    socket_length_auto = max(4, lid_width / (socket_count * 4));
+    socket_length = min(lid_width / socket_count - 0.8, max(3, lid_snap_socket_length > 0 ? lid_snap_socket_length : socket_length_auto));
+    socket_spacing = max(0.4, (lid_width - socket_count * socket_length) / (socket_count + 1));
+    knob_diameter = max(pin_diameter + 1, lid_snap_end_knob_diameter);
+    // Open/print layout: put pin and socket on opposite sides of the intended hinge axis.
+    pin_y = hinge_y - lid_snap_gap / 2;
+    socket_y = hinge_y + lid_snap_gap / 2;
+
+    for (i = [0 : socket_count - 1]) {
+        // Distribute compact snap clusters evenly across the lid width.
+        cluster_x_start = -lid_width / 2 + socket_spacing + i * (socket_length + socket_spacing);
+
+        // Pin half belongs to one lid panel.
+        snap_pin_cluster(cluster_x_start, socket_length, pin_y, hinge_z, z_top, hinge_leaf_depth, pin_diameter, knob_diameter);
+
+        // Socket half belongs to the other lid panel and faces the pin half.
+        snap_socket_cluster(
+            cluster_x_start, socket_length, socket_y, hinge_z, z_top, hinge_leaf_depth,
+            socket_outer_diameter, socket_inner_diameter, socket_mouth_width
+        );
+    }
+}
+
+// Module: male half of a snap hinge cluster.
+// The end knobs help retain the C-shaped socket after assembly.
+module snap_pin_cluster(cluster_x_start, cluster_length, hinge_y, hinge_z, z_top, hinge_leaf_depth, pin_diameter, knob_diameter) {
+    // Main hinge pin, oriented along X.
+    translate([cluster_x_start, hinge_y, hinge_z])
+    rotate([0, 90, 0])
+    cylinder(d=pin_diameter, h=cluster_length, $fn=32);
+
+    // Left retention knob.
+    translate([cluster_x_start - knob_diameter * 0.25, hinge_y, hinge_z])
+    rotate([0, 90, 0])
+    cylinder(d=knob_diameter, h=knob_diameter * 0.5, $fn=32);
+
+    // Right retention knob.
+    translate([cluster_x_start + cluster_length - knob_diameter * 0.25, hinge_y, hinge_z])
+    rotate([0, 90, 0])
+    cylinder(d=knob_diameter, h=knob_diameter * 0.5, $fn=32);
+
+    // Thin hinge leaf that bonds the pin half onto the front lid panel.
+    translate([cluster_x_start, hinge_y - hinge_leaf_depth, z_top + lid_form_z(lid_split_y - hinge_leaf_depth) - 0.2])
+    cube([cluster_length, hinge_leaf_depth, min(lid_thickness, 1.2)]);
+}
+
+// Module: female half of a snap hinge cluster.
+// The C-shaped socket grips the pin and bonds to the rear lid panel.
+module snap_socket_cluster(cluster_x_start, cluster_length, hinge_y, hinge_z, z_top, hinge_leaf_depth, outer_diameter, inner_diameter, mouth_width) {
+    // C-shaped socket barrel centered on the hinge axis.
+    translate([cluster_x_start, hinge_y, hinge_z])
+    snap_socket_segment(cluster_length, outer_diameter, inner_diameter, mouth_width);
+
+    // Thin hinge leaf that bonds the socket half onto the rear lid panel.
+    translate([cluster_x_start, hinge_y, z_top + lid_form_z(lid_split_y + hinge_leaf_depth) - 0.2])
+    cube([cluster_length, hinge_leaf_depth, min(lid_thickness, 1.2)]);
+}
+
+// Module: C-shaped hinge socket.
+// The inner cylinder creates pin clearance and the rectangular cut opens the snap mouth.
+module snap_socket_segment(socket_length, outer_diameter, inner_diameter, mouth_width) {
+    rotate([0, 90, 0])
+    difference() {
+        cylinder(d=outer_diameter, h=socket_length, $fn=40);
+        translate([0, 0, -0.1]) cylinder(d=inner_diameter, h=socket_length + 0.2, $fn=32);
+        translate([-mouth_width / 2, -outer_diameter, -0.2]) cube([mouth_width, outer_diameter, socket_length + 0.4]);
+    }
+}
+
+// Module: one-piece flat lid plate when lid_follow_box_top is disabled.
+// It intentionally does not split at lid_split_y.
+module simple_flat_lid_plate(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer) {
+    // Cap the chamfer so the straight section never becomes negative.
+    chamfer_actual = min(chamfer, thickness);
+
+    hull() {
+        // Lower footprint is inset by the chamfer amount.
+        translate([0, y_offset, z_base])
+        linear_extrude(0.01)
+        shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, chamfer_actual);
+
+        // Upper footprint is full size, creating the bevel between the two slices.
+        translate([0, y_offset, z_base + chamfer_actual])
+        linear_extrude(0.01)
+        shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, 0);
+    }
+
+    // Straight lid thickness above the chamfer.
+    translate([0, y_offset, z_base + chamfer_actual])
+    linear_extrude(thickness - chamfer_actual + 0.01)
+    shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, 0);
+}
+
+// Module: flat lid slice clipped by the rounded footprint.
+// Used for the rear panel of a split lid.
+module flat_lid_segment(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer, y_min, y_max) {
+    if (y_max > y_min) {
+        intersection() {
+            // Full rounded lid footprint.
+            translate([0, y_offset, z_base])
+            linear_extrude(thickness)
+            shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, chamfer);
+
+            // Rectangular clip window that keeps only the requested Y range.
+            translate([-plate_width / 2 - 1, y_min, z_base - 0.1])
+            cube([plate_width + 2, y_max - y_min, thickness + 0.2]);
+        }
+    }
+}
+
+// Module: sloped lid slice clipped by the rounded footprint.
+// Used for the front panel so the lid follows the box top line.
+module sloped_lid_segment(plate_width, plate_length, plate_corner_radius, y_offset, z_base, thickness, chamfer, y_min, y_max) {
+    // Create an extrusion volume tall enough to cover the sloped panel at both ends.
+    z_min = z_base + min(lid_form_z(y_min), lid_form_z(y_max)) - 0.1;
+    z_max = z_base + thickness + max(lid_form_z(y_min), lid_form_z(y_max)) + 0.2;
+
+    intersection() {
+        // Full rounded footprint extruded through the possible slope height.
+        translate([0, y_offset, z_min])
+        linear_extrude(z_max - z_min)
+        shifted_rounded_box_2d(plate_width, plate_length, plate_corner_radius, top_shift_y, chamfer);
+
+        // Sloped side profile that trims the footprint into the final panel.
+        translate([-plate_width / 2 - 1, 0, 0])
+        rotate([90, 0, 90])
+        linear_extrude(plate_width + 2)
+        polygon([
+            [y_min, z_base + lid_form_z(y_min)],
+            [y_max, z_base + lid_form_z(y_max)],
+            [y_max, z_base + lid_form_z(y_max) + thickness],
+            [y_min, z_base + lid_form_z(y_min) + thickness]
+        ]);
+    }
+}
+
+// Module: rounded grip/handle, built as a hull between two cylinders.
+// This gives a capsule-like handle without drawing a custom 2D profile.
+module rounded_grip(grip_width, grip_depth, grip_height) {
+    hull() {
+        translate([-grip_width/2 + grip_depth/2, grip_depth/2, 0]) cylinder(d=grip_depth, h=grip_height, $fn=24);
+        translate([grip_width/2 - grip_depth/2, grip_depth/2, 0]) cylinder(d=grip_depth, h=grip_height, $fn=24);
+    }
+}
+
+// Module: build the solid outer shell before hollowing.
+// The shape is made from several hull() transitions:
+// - bottom stacking plug,
+// - tapered transition into full box width,
+// - main wall that leans according to front_lip_angle.
+// created by NotyDesign
+module build_box_outer_shell() {
+    difference() {
+        union() {
+            // Bottom chamfer of the stacking plug.
+            hull() {
+                translate([0, plug_inset, 0]) linear_extrude(0.01) shifted_rounded_box_2d(stacking_plug_width, stacking_plug_length, plug_radius, 0, base_chamfer);
+                translate([0, plug_inset, base_chamfer]) linear_extrude(0.01) shifted_rounded_box_2d(stacking_plug_width, stacking_plug_length, plug_radius, 0, 0);
+            }
+            
+            // Straight vertical section of the stacking plug.
+            translate([0, plug_inset, base_chamfer]) linear_extrude(stacking_lip_height - base_chamfer + 0.01) shifted_rounded_box_2d(stacking_plug_width, stacking_plug_length, plug_radius, 0, 0);
+
+            // Taper from the smaller stacking plug to the full-width bin body.
+            hull() {
+                translate([0, plug_inset, stacking_lip_height]) linear_extrude(0.01) shifted_rounded_box_2d(stacking_plug_width, stacking_plug_length, plug_radius, 0);
+                translate([0, 0, tilt_z_origin]) linear_extrude(0.01) shifted_rounded_box_2d(box_width, box_length, corner_radius, 0);
+            }
+
+            // Main body, including the top shift that creates the angled front wall.
+            hull() {
+                translate([0, 0, tilt_z_origin]) linear_extrude(0.01) shifted_rounded_box_2d(box_width, box_length, corner_radius, 0);
+                translate([0, 0, box_height - 0.01]) linear_extrude(0.01) shifted_rounded_box_2d(box_width, box_length, corner_radius, top_shift_y);
+            }
+
+            if (include_label_holder) {
+                // Optional front label holder, placed on the tilted front face.
+                label_holder_width = min(60, box_width - 20); 
+                label_holder_height = min(20, front_lip_height - tilt_z_origin - 4); 
+                label_holder_thickness = 3;
+                label_holder_z = tilt_z_origin + (front_lip_height - tilt_z_origin - label_holder_height)/2;
+                label_holder_y_shift = front_wall_y_at_z(label_holder_z);
+                translate([0, label_holder_y_shift, label_holder_z]) rotate([front_lip_angle, 0, 0]) translate([-label_holder_width/2, -label_holder_thickness + 1, 0])
+                difference() {
+                    hull() { 
+                        translate([0, 0, label_holder_thickness]) cube([label_holder_width, label_holder_thickness, label_holder_height - label_holder_thickness]); 
+                        translate([0, label_holder_thickness - 0.01, 0]) cube([label_holder_width, 0.01, 0.01]); 
+                    }
+                    translate([2, 1.2, 2]) cube([label_holder_width - 4, 1.5, label_holder_height + 1]);
+                    translate([4, -0.1, 4]) cube([label_holder_width - 8, label_holder_thickness + 1.3, label_holder_height - 2]);
+                }
+            }
+            
+            if (enable_sliding_rails) {
+                // Side rails on the bin body. These slide into the separate fixed mounting rails.
+                side_rail_height = max(slider_rail_width, slider_rail_height);
+                side_rail_width = slider_rail_width;
+                calculated_max_length = box_length - lid_split_y;
+                actual_rail_length = (slider_rail_length > 0) ? min(slider_rail_length, box_length - slope_origin_y - 2) : calculated_max_length;
+                rail_start_y = box_length - slider_rail_offset_y;
+                rail_end_y = rail_start_y - actual_rail_length;
+                rail_front_chamfer_length = min(15, actual_rail_length / 3);
+                is_rail_sloped = (rail_end_y < lid_split_y);
+
+                if (is_rail_sloped) {
+                    // Rail crosses the sloped region, so a single hull keeps it continuous.
+                    hull() { 
+                        translate([box_width/2 - 0.1, rail_start_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [side_rail_width, side_rail_width], [side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([box_width/2 - 0.1, rail_end_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [side_rail_width, side_rail_width], [side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                    }
+                    hull() { 
+                        translate([-box_width/2 + 0.1, rail_start_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-side_rail_width, side_rail_width], [-side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([-box_width/2 + 0.1, rail_end_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-side_rail_width, side_rail_width], [-side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                    }
+                } else {
+                    // Rail stays in the flat rear region, so add a chamfered lead-in at the front.
+                    hull() { 
+                        translate([box_width/2 - 0.1, rail_start_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [side_rail_width, side_rail_width], [side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([box_width/2 - 0.1, rail_end_y + rail_front_chamfer_length, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [side_rail_width, side_rail_width], [side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                    }
+                    hull() { 
+                        translate([box_width/2 - 0.1, rail_end_y + rail_front_chamfer_length, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [side_rail_width, side_rail_width], [side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([box_width/2 - 0.1, rail_end_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [0.1, 0.1], [0.1, side_rail_height], [0, side_rail_height]]); 
+                    }
+                    hull() { 
+                        translate([-box_width/2 + 0.1, rail_start_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-side_rail_width, side_rail_width], [-side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([-box_width/2 + 0.1, rail_end_y + rail_front_chamfer_length, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-side_rail_width, side_rail_width], [-side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                    }
+                    hull() { 
+                        translate([-box_width/2 + 0.1, rail_end_y + rail_front_chamfer_length, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-side_rail_width, side_rail_width], [-side_rail_width, side_rail_height], [0, side_rail_height]]); 
+                        translate([-box_width/2 + 0.1, rail_end_y, box_height - side_rail_height]) rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [-0.1, 0.1], [-0.1, side_rail_height], [0, side_rail_height]]); 
+                    }
+                }
+            }
+        }
+        
+        if (rail_indent_depth > 0) {
+            // Optional centered back-wall indentation.
+            translate([-rail_indent_width/2, box_length - rail_indent_depth, -50]) cube([rail_indent_width, rail_indent_depth + 50, box_height + 100]);
+        }
+
+        if (enable_sliding_rails) {
+            // Trim away rail geometry above the sloped roof line.
+            translate([-(box_width + 50)/2, 0, 0])
+            rotate([90, 0, 90])
+            linear_extrude(box_width + 50)
+            polygon([[-max(50, box_width), front_lip_height], [slope_origin_y, front_lip_height], [lid_split_y, box_height + 1], [-max(50, box_width), box_height + 1]]);
+        }
+    }
+}
+
+// Module: subtract the hollow interior from the outer shell.
+// The inner void follows the same transitions as the outside, inset by effective_wall.
+module cut_box_inner_void() {
+    union() {
+        difference() {
+            union() {
+                // Bottom interior dimensions above the stacking plug.
+                stacking_plug_inner_width = stacking_plug_width - 2 * effective_wall; 
+                stacking_plug_inner_length = stacking_plug_length - 2 * effective_wall;
+                translate([0, plug_inset + effective_wall, effective_wall]) linear_extrude(stacking_lip_height - effective_wall + 0.01) shifted_rounded_box_2d(stacking_plug_inner_width, stacking_plug_inner_length, plug_inner_radius, 0);
+                // Interior taper from plug area into the main bin body.
+                hull() { 
+                    translate([0, plug_inset + effective_wall, stacking_lip_height]) linear_extrude(0.01) shifted_rounded_box_2d(stacking_plug_inner_width, stacking_plug_inner_length, plug_inner_radius, 0); 
+                    translate([0, effective_wall, tilt_z_origin]) linear_extrude(0.01) shifted_rounded_box_2d(box_inner_width, box_inner_length, inner_radius, 0); 
+                }
+                // Main interior void, including the same top shift used by the outer wall.
+                hull() { 
+                    translate([0, effective_wall, tilt_z_origin - 0.01]) linear_extrude(0.01) shifted_rounded_box_2d(box_inner_width, box_inner_length, inner_radius, 0); 
+                    translate([0, effective_wall, box_height + 0.01]) linear_extrude(0.01) shifted_rounded_box_2d(box_inner_width, box_inner_length, inner_radius, top_shift_y); 
+                }
+            }
+            // Keep extra material around any rail indent or dovetail mount area.
+            protected_back_width = enable_wall_mount ? max(rail_indent_width + 2*effective_wall, dovetail_width_wide + 12) : (rail_indent_width + 2*effective_wall);
+            protected_back_depth = enable_wall_mount ? dovetail_depth : 0;
+            if (rail_indent_depth > 0 || enable_wall_mount) {
+                translate([-protected_back_width/2, box_length - rail_indent_depth - protected_back_depth - effective_wall, -50]) cube([protected_back_width, protected_back_depth + effective_wall + 50, box_height + 100]);
+            }
+        }
+
+        // Optional female dovetail cutout for wall mounting.
+        if (enable_wall_mount) translate([0, bracket_base_y, tilt_z_origin]) dovetail_female_cutout();
+
+        // Remove everything above the roof line and open top.
+        translate([-(box_width + 10)/2, 0, 0]) rotate([90, 0, 90]) linear_extrude(box_width + 10) polygon([[-max(50, box_width), front_lip_height], [slope_origin_y, front_lip_height], [lid_split_y, box_height + 1], [-max(50, box_width), box_height + 1]]);
+        translate([-(box_width + 10)/2, -50, box_height]) cube([box_width + 10, box_length + 60, 10]);
+
+        // Design holes are applied last so they cut through the completed shell.
+        apply_design_holes();
+    }
+}
+
+// Module: draw one 2D unit of the exterior surface pattern.
+// The caller rotates and extrudes this profile through or onto a wall.
+// All options share one size parameter so the Customizer can switch shapes directly.
+module generate_pattern_unit(shape) {
+    pattern_unit_size = pattern_scale;
+    if (shape == "Dots") {
+        // Dot pattern: a simple round puck.
+        circle(d=pattern_unit_size, $fn=16);
+    } 
+    else if (shape == "Hexagon (Honeycomb)") {
+        // Honeycomb: six-sided circle rotated so the flats align nicely in a grid.
+        rotate([0, 0, 30]) circle(d=pattern_unit_size, $fn=6);
+    } 
+    else if (shape == "Diamonds") {
+        // Diamond: square rotated 45 degrees.
+        rotate([0, 0, 45]) square([pattern_unit_size*0.7, pattern_unit_size*0.7], center=true);
+    } 
+    else if (shape == "Triangles") {
+        // Triangle: three points around the origin.
+        polygon([[-pattern_unit_size/2, -pattern_unit_size/2.5], [pattern_unit_size/2, -pattern_unit_size/2.5], [0, pattern_unit_size/2]]);
+    } 
+    else if (shape == "Vertical Ribs") {
+        // Vertical ribs: narrow and tall rectangle.
+        square([pattern_unit_size*0.3, pattern_unit_size*1.5], center=true);
+    } 
+    else if (shape == "Horizontal Ribs") {
+        // Horizontal ribs: wide and low rectangle.
+        square([pattern_unit_size*1.5, pattern_unit_size*0.3], center=true);
+    } 
+    else if (shape == "Grid") {
+        // Grid: outer square minus inner square creates a frame.
+        difference() {
+            square([pattern_unit_size, pattern_unit_size], center=true);
+            square([pattern_unit_size*0.7, pattern_unit_size*0.7], center=true);
+        }
+    } 
+    else if (shape == "Diagonal Grid") {
+        // Diagonal grid: same frame as Grid, but rotated.
+        rotate([0, 0, 45])
+        difference() {
+            square([pattern_unit_size, pattern_unit_size], center=true);
+            square([pattern_unit_size*0.7, pattern_unit_size*0.7], center=true);
+        }
+    } 
+    else if (shape == "ZigZag") {
+        // Zigzag: hand-defined polygon where stroke width is derived from pattern_unit_size.
+        zigzag_stroke_width = pattern_unit_size*0.2;
+        polygon([[-pattern_unit_size/2, -pattern_unit_size/2], [-pattern_unit_size/4+zigzag_stroke_width, 0], [0, -pattern_unit_size/2], [pattern_unit_size/4+zigzag_stroke_width, 0], [pattern_unit_size/2, -pattern_unit_size/2], [pattern_unit_size/2, -pattern_unit_size/2+zigzag_stroke_width], [pattern_unit_size/4+zigzag_stroke_width, zigzag_stroke_width], [0, -pattern_unit_size/2+zigzag_stroke_width], [-pattern_unit_size/4+zigzag_stroke_width, zigzag_stroke_width], [-pattern_unit_size/2, -pattern_unit_size/2+zigzag_stroke_width]]);
+    } 
+    else if (shape == "Brick") {
+        // Brick: wide low rectangle that becomes staggered in the pattern grid.
+        square([pattern_unit_size*1.8, pattern_unit_size*0.6], center=true);
+    } 
+    else {
+        // Fallback if an unknown shape string is passed in.
+        circle(d=pattern_unit_size, $fn=16);
+    }
+}
+
+// Module: place exterior patterns on side walls, back wall, and front wall.
+// Placement intentionally avoids edges, the roof line, rails, and wall-mount features.
+module draw_exterior_surface_patterns() {
+    // Safety margins keep decorative geometry away from structural edges.
+    safe_margin_y = 6; 
+    safe_margin_z = 6; 
+    // Double depth ensures cut/extrude patterns fully cross the wall surface.
+    effective_extrude_depth = pattern_depth * 2;
+    // These shapes look more natural when every other row is offset.
+    staggered = (pattern_type == "Hexagon (Honeycomb)" || pattern_type == "Brick" || pattern_type == "Triangles" || pattern_type == "Dots");
+    // Number of candidate cells to test across Y and Z.
+    ny = ceil(box_length / pattern_spacing) + 1; 
+    nz = ceil(box_height / pattern_spacing) + 1;
+
+    for (i = [0 : ny]) {
+        for (j = [0 : nz]) {
+            offset_y = (staggered && (j % 2 != 0)) ? (pattern_spacing / 2) : 0;
+            cy = i * pattern_spacing + offset_y; 
+            cz = tilt_z_origin + j * pattern_spacing;
+            // Radius and gap are used for conservative edge/roof clearance checks.
+            r_eff = pattern_scale / 2; 
+            gap = 2;
+
+            // Front clearance follows the tilted front wall at the current Z height.
+            y_front_limit = front_wall_y_at_z(cz);
+            y_ok_front = (cy - r_eff - gap >= y_front_limit + effective_wall + safe_margin_y);
+            y_ok_back = (cy + r_eff + gap <= box_length - rail_indent_depth - safe_margin_y);
+            z_ok_bottom = (cz - r_eff - gap >= tilt_z_origin + safe_margin_z);
+            // Check the roof using the front edge of the pattern, because that is the risky side on the slope.
+            y_check_roof = cy - r_eff - gap;
+            roof_z = box_roof_z(y_check_roof);
+            z_ok_roof = (cz + r_eff + gap <= roof_z - safe_margin_z);
+            z_ok_rail = enable_sliding_rails ? (cz + r_eff + gap <= box_height - max(slider_rail_width, slider_rail_height) - safe_margin_z) : true;
+
+            if (z_ok_bottom && y_ok_front && y_ok_back && z_ok_roof && z_ok_rail) {
+                // Place matching units on left and right side walls.
+                translate([-box_width/2, cy, cz])
+                rotate([0, 90, 0])
+                rotate([0, 0, 90])
+                linear_extrude(effective_extrude_depth, center=true)
+                generate_pattern_unit(pattern_type);
+
+                translate([box_width/2, cy, cz])
+                rotate([0, 90, 0])
+                rotate([0, 0, 90])
+                linear_extrude(effective_extrude_depth, center=true)
+                generate_pattern_unit(pattern_type);
+            }
+        }
+    }
+    
+    // Back face patterning. If a mount/indent exists, keep the center area clear.
+    safe_back_h = box_height - tilt_z_origin - 2 * safe_margin_z;
+    center_block_w = (enable_wall_mount || rail_indent_depth > 0) ? max(rail_indent_depth > 0 ? rail_indent_width : 0, enable_wall_mount ? dovetail_width_wide + 16 : 0) : 0;
+    if (center_block_w > 0) {
+        safe_back_w = (box_width - center_block_w) / 2 - safe_margin_y * 1.5;
+        if (safe_back_w > pattern_spacing && safe_back_h > pattern_spacing) {
+            translate([-(center_block_w/2 + safe_margin_y/2 + safe_back_w/2), box_length - rail_indent_depth, tilt_z_origin + safe_margin_z + safe_back_h/2]) apply_pattern_grid_x(safe_back_w, safe_back_h, pattern_type, effective_extrude_depth, staggered);
+            translate([(center_block_w/2 + safe_margin_y/2 + safe_back_w/2), box_length - rail_indent_depth, tilt_z_origin + safe_margin_z + safe_back_h/2]) apply_pattern_grid_x(safe_back_w, safe_back_h, pattern_type, effective_extrude_depth, staggered);
+        }
+    } else {
+        safe_back_w = box_width - 2 * safe_margin_y;
+        if (safe_back_w > pattern_spacing && safe_back_h > pattern_spacing) {
+            translate([0, box_length - rail_indent_depth, tilt_z_origin + safe_margin_z + safe_back_h/2])
+            apply_pattern_grid_x(safe_back_w, safe_back_h, pattern_type, effective_extrude_depth, staggered);
+        }
+    }
+    
+    // Front face patterning. The front wall is rotated by front_lip_angle.
+    safe_front_h = (front_lip_height - tilt_z_origin) - 2 * safe_margin_z - (include_label_holder ? 22 : 0);
+    safe_front_w = box_width - 2 * safe_margin_y;
+    if (safe_front_w > pattern_spacing && safe_front_h > pattern_spacing && front_lip_height > tilt_z_origin + 15) {
+        front_z_center = tilt_z_origin + safe_margin_z + safe_front_h/2;
+        shift_at_center = front_wall_y_at_z(front_z_center);
+        translate([0, shift_at_center, front_z_center])
+        rotate([front_lip_angle, 0, 0])
+        apply_pattern_grid_x(safe_front_w, safe_front_h, pattern_type, effective_extrude_depth, staggered);
+    }
+}
+
+// Module: helper grid for front and back patterns.
+// Creates a centered grid in local X/Z space and extrudes through the wall.
+module apply_pattern_grid_x(length_dim, height_dim, shape_type, depth, is_staggered) {
+    nx = max(1, floor(length_dim / pattern_spacing)); 
+    nz = max(1, floor(height_dim / pattern_spacing));
+    for (i = [0 : nx - 1]) {
+        for (j = [0 : nz - 1]) {
+            offset_x = (is_staggered && (j % 2 != 0)) ? (pattern_spacing / 2) : 0;
+            translate([(i - (nx - 1) / 2) * pattern_spacing + offset_x, 0, (j - (nz - 1) / 2) * pattern_spacing])
+            rotate([90, 0, 0])
+            linear_extrude(depth, center=true)
+            generate_pattern_unit(shape_type);
+        }
+    }
+}
+
+// Module: complete Elfa-style bracket with a dovetail back and two hook tooth columns.
+// The backplate is the flat plate; the dovetail fits into the box's rear cutout.
+module elfa_bracket_with_dovetail() {
+    color(bracket_color)
+    union() {
+        // Backplate that carries the hook teeth.
+        translate([-bracket_width/2, 0, 0]) cube([bracket_width, backplate_thickness, bracket_height]);
+        // Dovetail: narrow near the plate, wider at the back so it locks into the slot.
+        translate([0, 0, bracket_height/2])
+        hull() {
+            translate([0, -0.01, 0])
+            cube([dovetail_width_narrow, 0.01, bracket_height], center=true);
+
+            translate([0, -dovetail_depth, 0])
+            cube([dovetail_width_wide, 0.01, bracket_height], center=true);
+        }
+        // Two tooth columns placed at the calculated spacing.
+        translate([0, backplate_thickness, 0]) {
+            translate([-calculated_tooth_pitch_x/2, 0, 0]) tooth_column();
+            translate([calculated_tooth_pitch_x/2, 0, 0]) tooth_column();
+        }
+    }
+}
+
+// Module: one vertical column of hook teeth for the Elfa-style bracket.
+// Each tooth is a 2D polygon extruded across the column width.
+module tooth_column() {
+    actual_notch_z = hook_down_y + notch_distance_from_bottom;
+    for (i = [0 : number_of_teeth - 1]) {
+        // Place each tooth at an even pitch distance along Z.
+        z_pos = tooth_vertical_offset + (i * tooth_pitch_y);
+        translate([0, 0, z_pos]) {
+            // Hook profile: root, notch, hook tip, and top edge in one polygon.
+            rotate([90, 0, 90]) linear_extrude(height=tooth_width_calc, center=true)
+            polygon([[0, base_bottom_y - tooth_root_chamfer], [0, base_bottom_y], [notch_depth, actual_notch_z], [notch_depth, hook_down_y], [tooth_depth - hook_tip_chamfer, hook_down_y], [tooth_depth, hook_down_y + hook_tip_chamfer], [tooth_depth, tooth_top_y_back], [0, tooth_top_y_front], [0, tooth_top_y_front + tooth_root_chamfer]]);
+            if (hook_base_fillet_depth > 0) {
+                // Optional reinforcement: hull blends the tooth root into the backplate.
+                y_target = hook_base_fillet_depth; 
+                t_bottom = y_target / notch_depth;
+                z_bottom_taper = base_bottom_y * (1 - t_bottom) + actual_notch_z * t_bottom;
+                t_top = y_target / tooth_depth; 
+                z_top_taper = tooth_top_y_front * (1 - t_top) + tooth_top_y_back * t_top;
+                hull() {
+                    rotate([90, 0, 90]) linear_extrude(height=tooth_width_calc + hook_base_width_fillet*2, center=true) polygon([[-0.1, base_bottom_y - hook_base_height_fillet], [0.1, base_bottom_y - hook_base_height_fillet], [0.1, tooth_top_y_front + hook_base_height_fillet], [-0.1, tooth_top_y_front + hook_base_height_fillet]]);
+                    rotate([90, 0, 90]) linear_extrude(height=tooth_width_calc, center=true) polygon([[y_target - 0.1, z_bottom_taper], [y_target, z_bottom_taper], [y_target, z_top_taper], [y_target - 0.1, z_top_taper]]);
+                }
+            }
+        }
+    }
+}
+
+// Module: female dovetail cutout in the box back wall.
+// Used only when wall mounting is enabled.
+module dovetail_female_cutout() {
+    c = dovetail_tolerance; 
+    cut_h = bracket_height + c;
+    // A hull between narrow and wide rectangles creates the trapezoid channel.
+    translate([0, 0, -50 + cut_h/2])
+    hull() {
+        translate([0, 0.1, 0])
+        cube([dovetail_width_narrow + c*2, 0.1, cut_h + 100], center=true);
+
+        translate([0, -(dovetail_depth + c), 0])
+        cube([dovetail_width_wide + c*2, 0.1, cut_h + 100], center=true);
+    }
+}
+
+// Module: apply all enabled design/perforation hole grids.
+// Each face has separate placement rules so holes avoid edges,
+// hinges, rails, and wall-mount details.
+module apply_design_holes() {
+    if (enable_holes_left) {
+        side_holes_custom(hole_diameter/2, hole_spacing, hole_shape, -box_width/2);
+    }
+
+    if (enable_holes_right) {
+        side_holes_custom(hole_diameter/2, hole_spacing, hole_shape, box_width/2);
+    }
+
+    if (enable_holes_bottom) {
+        translate([0, (box_length - rail_indent_depth)/2 + plug_inset, 0])
+        hole_grid_z(
+            box_inner_width - corner_radius * 2,
+            stacking_plug_length - plug_inset * 2 - corner_radius * 2 - rail_indent_depth,
+            effective_wall * 10,
+            hole_diameter/2,
+            hole_spacing,
+            hole_shape
+        );
+    }
+
+    if (enable_holes_back) {
+        // Back holes are split around any central wall-mount feature.
+        z_cent = tilt_z_origin + (box_height - tilt_z_origin)/2;
+        center_block_w = (enable_wall_mount || rail_indent_depth > 0) ? max(rail_indent_depth > 0 ? rail_indent_width : 0, enable_wall_mount ? dovetail_width_wide + 16 : 0) : 0;
+        if (center_block_w > 0) {
+            space_w = (box_inner_width - corner_radius * 2 - center_block_w) / 2;
+            if (space_w > hole_spacing) {
+                translate([-(center_block_w/2 + space_w/2), box_length, z_cent])
+                hole_grid_x(space_w, box_height - tilt_z_origin - corner_radius, effective_wall * 10 + rail_indent_depth, hole_diameter/2, hole_spacing, hole_shape);
+
+                translate([(center_block_w/2 + space_w/2), box_length, z_cent])
+                hole_grid_x(space_w, box_height - tilt_z_origin - corner_radius, effective_wall * 10 + rail_indent_depth, hole_diameter/2, hole_spacing, hole_shape);
+            }
+        } else {
+            translate([0, box_length, z_cent])
+            hole_grid_x(box_inner_width - corner_radius * 2, box_height - tilt_z_origin - corner_radius, effective_wall * 10 + rail_indent_depth, hole_diameter/2, hole_spacing, hole_shape);
+        }
+    }
+
+    if (enable_holes_front) {
+        // Front holes are placed in a rotated local plane matching the front wall angle.
+        front_hole_z_center = tilt_z_origin + (front_lip_height - tilt_z_origin)/2;
+        shift_at_center = front_wall_y_at_z(front_hole_z_center);
+        translate([0, shift_at_center, front_hole_z_center])
+        rotate([front_lip_angle, 0, 0])
+        hole_grid_x(
+            box_inner_width - corner_radius * 2,
+            front_lip_height - tilt_z_origin - (include_label_holder ? 25 : corner_radius),
+            effective_wall * 10,
+            hole_diameter/2,
+            hole_spacing,
+            hole_shape
+        );
+    }
+}
+
+// Module: place holes on the side walls.
+// Each candidate is checked against the bottom, front, back, roof line, and rail-safe zone.
+module side_holes_custom(r_val, spacing_val, shape, placement_x) {
+    safe_margin_y = 6; 
+    safe_margin_z = 6;
+    is_slot = (shape == "Slot");
+    // Slots are wider/taller than their base radius depending on rotation angle.
+    slot_dx = is_slot ? r_val * 1.5 * abs(cos(slot_rotation_angle)) : 0;
+    slot_dy = is_slot ? r_val * 1.5 * abs(sin(slot_rotation_angle)) : 0;
+    // Step size includes the extra slot footprint so rotated slots do not collide.
+    step_h = spacing_val + slot_dx;
+    step_v = spacing_val + slot_dy;
+    // Effective clearance radius used for boundary checks.
+    r_eff_h = r_val + slot_dx;
+    r_eff_v = is_slot ? (r_val + slot_dy) : ((shape == "Teardrop") ? r_val * 1.415 : r_val);
+    // Candidate grid; invalid candidates are filtered per point below.
+    ny = ceil(box_length / step_h) + 1; 
+    nz = ceil(box_height / step_v) + 1;
+    for (i = [0 : ny]) {
+        for (j = [0 : nz]) {
+            cy = i * step_h; 
+            cz = tilt_z_origin + j * step_v; 
+            gap = 2;
+            y_front_limit = front_wall_y_at_z(cz);
+            y_ok_front = (cy - r_eff_h - gap >= y_front_limit + effective_wall + safe_margin_y);
+            y_ok_back = (cy + r_eff_h + gap <= box_length - rail_indent_depth - safe_margin_y);
+            z_ok_bottom = (cz - r_eff_v - gap >= tilt_z_origin + safe_margin_z);
+            y_check_roof = cy - r_eff_h - gap;
+            roof_z = box_roof_z(y_check_roof);
+            z_ok_roof = (cz + r_eff_v + gap <= roof_z - safe_margin_z);
+            z_ok_rail = enable_sliding_rails ? (cz + r_eff_v + gap <= box_height - max(slider_rail_width, slider_rail_height) - safe_margin_z) : true;
+            if (z_ok_bottom && y_ok_front && y_ok_back && z_ok_roof && z_ok_rail) {
+                translate([placement_x, cy, cz])
+                punch_x(effective_wall * 10, r_val, shape);
+            }
+        }
+    }
+}
+
+// Module: hole grid for the front and back walls.
+// Holes are punched along local Y.
+module hole_grid_x(width_dim, height_dim, depth_dim, r_val, spacing_val, shape) {
+    is_slot = (shape == "Slot"); 
+    // A rotated slot occupies more width/height than its nominal radius.
+    slot_dx = is_slot ? r_val * 1.5 * abs(cos(slot_rotation_angle)) : 0; 
+    slot_dy = is_slot ? r_val * 1.5 * abs(sin(slot_rotation_angle)) : 0;
+    step_h = spacing_val + slot_dx; 
+    step_v = spacing_val + slot_dy;
+    // Effective footprint for keeping the full hole inside the available panel.
+    r_eff_h = r_val + slot_dx; 
+    r_eff_v = is_slot ? (r_val + slot_dy) : ((shape == "Teardrop") ? r_val * 1.415 : r_val);
+    safe_w = width_dim - 2 * r_eff_h; 
+    safe_h = height_dim - 2 * r_eff_v;
+    if (safe_w >= 0 && safe_h >= 0) {
+        // At least one hole is allowed if the safe area is positive but smaller than one spacing.
+        nx = max(1, floor(safe_w / step_h) + 1); 
+        nz = max(1, floor(safe_h / step_v) + 1);
+        for (i = [0 : nx - 1]) {
+            for (j = [0 : nz - 1]) {
+                translate([(i - (nx - 1) / 2) * step_h, 0, (j - (nz - 1) / 2) * step_v])
+                punch_y(depth_dim, r_val, shape);
+            }
+        }
+    }
+}
+
+// Module: hole grid for the bottom.
+// Holes are punched along Z.
+module hole_grid_z(width_dim, length_dim, depth_dim, r_val, spacing_val, shape) {
+    is_slot = (shape == "Slot"); 
+    // A rotated slot occupies more width/length than its nominal radius.
+    slot_dx = is_slot ? r_val * 1.5 * abs(cos(slot_rotation_angle)) : 0; 
+    slot_dy = is_slot ? r_val * 1.5 * abs(sin(slot_rotation_angle)) : 0;
+    step_h = spacing_val + slot_dx; 
+    step_v = spacing_val + slot_dy;
+    // Effective footprint for keeping holes inside the bottom panel.
+    r_eff_h = r_val + slot_dx; 
+    r_eff_v = is_slot ? (r_val + slot_dy) : r_val;
+    safe_w = width_dim - 2 * r_eff_h; 
+    safe_l = length_dim - 2 * r_eff_v;
+    if (safe_w >= 0 && safe_l >= 0) {
+        // At least one hole is allowed if the safe area is positive but smaller than one spacing.
+        nx = max(1, floor(safe_w / step_h) + 1); 
+        ny = max(1, floor(safe_l / step_v) + 1);
+        for (i = [0 : nx - 1]) {
+            for (j = [0 : ny - 1]) {
+                translate([(i - (nx - 1) / 2) * step_h, (j - (ny - 1) / 2) * step_v, 0])
+                punch_z(depth_dim, r_val, shape);
+            }
+        }
+    }
+}
+
+// Module: create a rounded rectangle-like 2D footprint using four circles and hull().
+// y_shift moves only the front corner points, which is used for tilted/top-shifted profiles.
+// inset moves the corners inward and is used for chamfers.
+module shifted_rounded_box_2d(profile_width, profile_length, radius_value, y_shift=0, inset=0) {
+    // Keep a tiny positive radius so hull() never receives invalid zero-radius circles.
+    corner_radius_actual = max(0.01, radius_value); 
+    hull() { 
+        // Front-left corner. This corner receives y_shift.
+        translate([-profile_width/2 + corner_radius_actual + inset, corner_radius_actual + y_shift + inset]) circle(r=corner_radius_actual, $fn=32); 
+        // Front-right corner. This corner receives y_shift.
+        translate([profile_width/2 - corner_radius_actual - inset, corner_radius_actual + y_shift + inset]) circle(r=corner_radius_actual, $fn=32); 
+        // Back-right corner remains at the unshifted back edge.
+        translate([profile_width/2 - corner_radius_actual - inset, profile_length - corner_radius_actual - inset]) circle(r=corner_radius_actual, $fn=32); 
+        // Back-left corner remains at the unshifted back edge.
+        translate([-profile_width/2 + corner_radius_actual + inset, profile_length - corner_radius_actual - inset]) circle(r=corner_radius_actual, $fn=32); 
+    }
+}
+
+// Module: generate a 2D hole shape centered around the origin.
+// The punch modules below rotate and extrude the shape through the correct wall.
+module hole_2d(hole_radius, shape) {
+    if (shape == "Teardrop") {
+        // Teardrop is more FDM-friendly in vertical walls than a fully round hole.
+        hull() {
+            circle(r = hole_radius, $fn=32);
+            polygon([
+                [-hole_radius * 0.707, hole_radius * 0.707],
+                [hole_radius * 0.707, hole_radius * 0.707],
+                [0, hole_radius * 1.414]
+            ]);
+        }
+    }
+    else if (shape == "Hexagon") {
+        // Hexagonal hole.
+        rotate([0, 0, 30]) circle(r = hole_radius, $fn=6);
+    }
+    else if (shape == "Diamond") {
+        // Diamond hole: rotated square.
+        rotate([0, 0, 45]) square([hole_radius * 1.414, hole_radius * 1.414], center=true);
+    }
+    else if (shape == "Slot") {
+        // Slot: hull between two circles creates a capsule hole, then it is rotated.
+        rotate([0, 0, slot_rotation_angle])
+        hull() {
+            translate([-hole_radius * 1.5, 0])
+            circle(r = hole_radius, $fn=32);
+
+            translate([hole_radius * 1.5, 0])
+            circle(r = hole_radius, $fn=32);
+        }
+    }
+    else if (shape == "Triangle") {
+        // Triangular hole.
+        polygon([[-hole_radius * 0.866, -hole_radius * 0.5], [hole_radius * 0.866, -hole_radius * 0.5], [0, hole_radius]]);
+    }
+    else {
+        // Default/fallback: round hole.
+        circle(r = hole_radius, $fn=32);
+    }
+}
+
+// Module: punch a hole through a wall whose normal is along X.
+module punch_x(depth, hole_radius, shape) {
+    // Rotate the 2D hole shape so the extrusion passes through the side wall.
+    rotate([0, 90, 0])
+    rotate([0, 0, 90])
+    linear_extrude(depth, center = true)
+    hole_2d(hole_radius, shape);
+}
+
+// Module: punch a hole through a wall whose normal is along Y.
+module punch_y(depth, hole_radius, shape) {
+    // Local Z extrusion is rotated into the Y direction.
+    rotate([90, 0, 0])
+    linear_extrude(depth, center = true)
+    hole_2d(hole_radius, shape);
+}
+
+// Module: punch a hole straight through bottom/top along Z.
+module punch_z(depth, hole_radius, shape) {
+    // No rotation is needed because linear_extrude already runs along Z.
+    linear_extrude(depth, center = true)
+    hole_2d(hole_radius, shape);
+}

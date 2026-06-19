@@ -1,0 +1,15 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "clarens": "13",
+            "groove_depth": "11",
+            "link_body_radius": "15",
+            "link_length": "20",
+            "num_links": "5",
+            "resolution": "64",
+            "rod_radius": "-3.7000000000000002",
+            "rod_thickness": "3"
+        }
+    }
+}
