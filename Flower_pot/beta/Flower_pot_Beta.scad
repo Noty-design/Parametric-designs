@@ -45,8 +45,14 @@ socket_auto_center = true;
 socket_radial_offset = 0; // [-20:0.5:20]
 // Manual angular adjustment for vertical seam sockets. Positive rotates counter-clockwise.
 vertical_socket_angle_offset = 0; // [-30:0.5:30]
+// Extra radial adjustment for horizontal side sockets only. Positive moves holes outward, negative moves inward.
+side_socket_radial_offset = 0; // [-20:0.5:20]
+// Tangential adjustment for horizontal side sockets only. Positive moves the socket center along the seam direction.
+side_socket_tangent_offset = 0; // [-20:0.5:20]
 // Manual height adjustment for side seam sockets. Positive moves holes upward.
 side_socket_z_offset = 0; // [-30:0.5:30]
+// Manual drilling-angle adjustment for horizontal side sockets only.
+side_socket_axis_angle_offset = 0; // [-30:0.5:30]
 // Show loose printable pegs next to the pot
 show_loose_pegs = true;
 
@@ -76,6 +82,7 @@ outer_preview_radius = max(pot_top_radius + lip_width + 20, pot_bottom_radius + 
 
 function radius_at_height(height_value) = pot_bottom_radius + (pot_top_radius - pot_bottom_radius) * (height_value / pot_height);
 function socket_center_radius(height_value) = radius_at_height(height_value) - (socket_auto_center ? effective_wall_thickness * 0.5 : 0) + socket_radial_offset;
+function side_socket_center_radius(height_value) = socket_center_radius(height_value) + side_socket_radial_offset;
 function piece_color(radial_index, height_index) =
     ((radial_index + height_index) % 4 == 0) ? piece_color_1 :
     ((radial_index + height_index) % 4 == 1) ? piece_color_2 :
@@ -203,9 +210,13 @@ module side_socket_holes_for_section(radial_index, height_index) {
                 section_height = pot_height / height_pieces;
                 peg_z = height_index * section_height + local_fraction * section_height + side_socket_z_offset;
                 peg_z_safe = min(pot_height - socket_radius - 0.2, max(socket_radius + 0.2, peg_z));
-                peg_radius_from_center = socket_center_radius(peg_z_safe);
-                translate([peg_radius_from_center * cos(seam_angle), peg_radius_from_center * sin(seam_angle), peg_z_safe])
-                    rotate([0, 0, seam_angle + 90])
+                peg_radius_from_center = side_socket_center_radius(peg_z_safe);
+                translate([
+                    peg_radius_from_center * cos(seam_angle) + side_socket_tangent_offset * cos(seam_angle + 90),
+                    peg_radius_from_center * sin(seam_angle) + side_socket_tangent_offset * sin(seam_angle + 90),
+                    peg_z_safe
+                ])
+                    rotate([0, 0, seam_angle + 90 + side_socket_axis_angle_offset])
                         rounded_dowel(socket_radius, connector_length + 0.4);
             }
         }
