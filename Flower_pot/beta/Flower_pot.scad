@@ -39,6 +39,14 @@ connector_clearance = 0.25; // [0:0.05:1.5]
 vertical_pegs_per_section = 2; // [1:1:5]
 // Number of side pegs along each vertical seam per section
 side_pegs_per_section = 2; // [1:1:5]
+// Keep socket holes centered in the pot wall thickness
+socket_auto_center = true;
+// Manual radial adjustment for all socket holes. Positive moves holes outward, negative moves inward.
+socket_radial_offset = 0; // [-20:0.5:20]
+// Manual angular adjustment for vertical seam sockets. Positive rotates counter-clockwise.
+vertical_socket_angle_offset = 0; // [-30:0.5:30]
+// Manual height adjustment for side seam sockets. Positive moves holes upward.
+side_socket_z_offset = 0; // [-30:0.5:30]
 // Show loose printable pegs next to the pot
 show_loose_pegs = true;
 
@@ -67,6 +75,7 @@ socket_radius = effective_connector_radius + connector_clearance;
 outer_preview_radius = max(pot_top_radius + lip_width + 20, pot_bottom_radius + 20);
 
 function radius_at_height(height_value) = pot_bottom_radius + (pot_top_radius - pot_bottom_radius) * (height_value / pot_height);
+function socket_center_radius(height_value) = radius_at_height(height_value) - (socket_auto_center ? effective_wall_thickness * 0.5 : 0) + socket_radial_offset;
 function piece_color(radial_index, height_index) =
     ((radial_index + height_index) % 4 == 0) ? piece_color_1 :
     ((radial_index + height_index) % 4 == 1) ? piece_color_2 :
@@ -169,11 +178,13 @@ module vertical_socket_holes_for_section(radial_index, height_index) {
         for (seam_direction = [-1, 1]) {
             seam_z = (seam_direction < 0) ? height_index * pot_height / height_pieces : (height_index + 1) * pot_height / height_pieces;
             if (seam_z > 0 && seam_z < pot_height) {
-                seam_radius = radius_at_height(seam_z) - effective_wall_thickness * 0.5;
+                seam_radius = socket_center_radius(seam_z);
                 peg_count = (radial_pieces <= 1) ? max(3, vertical_pegs_per_section * 2) : vertical_pegs_per_section;
                 for (peg_number = [1 : peg_count]) {
                     local_fraction = peg_number / (peg_count + 1);
-                    peg_angle = radial_index * 360 / max(1, radial_pieces) + local_fraction * 360 / max(1, radial_pieces);
+                    section_angle = 360 / max(1, radial_pieces);
+                    section_start_angle = radial_index * section_angle;
+                    peg_angle = section_start_angle + local_fraction * section_angle + vertical_socket_angle_offset;
                     translate([seam_radius * cos(peg_angle), seam_radius * sin(peg_angle), seam_z])
                         vertical_dowel(socket_radius, connector_length + 0.4);
                 }
@@ -189,9 +200,11 @@ module side_socket_holes_for_section(radial_index, height_index) {
             seam_angle = (radial_index + side_selector) * 360 / radial_pieces;
             for (peg_number = [1 : side_pegs_per_section]) {
                 local_fraction = peg_number / (side_pegs_per_section + 1);
-                peg_z = height_index * pot_height / height_pieces + local_fraction * pot_height / height_pieces;
-                peg_radius_from_center = radius_at_height(peg_z) - effective_wall_thickness * 0.5;
-                translate([peg_radius_from_center * cos(seam_angle), peg_radius_from_center * sin(seam_angle), peg_z])
+                section_height = pot_height / height_pieces;
+                peg_z = height_index * section_height + local_fraction * section_height + side_socket_z_offset;
+                peg_z_safe = min(pot_height - socket_radius - 0.2, max(socket_radius + 0.2, peg_z));
+                peg_radius_from_center = socket_center_radius(peg_z_safe);
+                translate([peg_radius_from_center * cos(seam_angle), peg_radius_from_center * sin(seam_angle), peg_z_safe])
                     rotate([0, 0, seam_angle + 90])
                         rounded_dowel(socket_radius, connector_length + 0.4);
             }
