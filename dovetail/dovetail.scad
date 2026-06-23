@@ -1,12 +1,11 @@
-/* ========================================================================== */ // Starts the file header.
-/* Dovetail from the box/bin model, extracted and parameterized. */ // Describes the model origin.
-/* The dovetail can be screwed or glued to the back of what is mounted. */ // Describes the intended use.
+/* ========================================================================== */ 
+/* Dovetail from the box/bin model, extracted and parameterized. */ 
+/* The dovetail can be screwed or glued to the back of what is mounted. */ 
 /* Designed by Notydesign. */ // Credits the original designer.
-/* Comments and documentation added for easier maintenance. */ // States why the file is heavily commented.
-/* ========================================================================== */ // Ends the file header.
-// All dimensions in this file are millimeters. // Defines the unit used by every numeric dimension.
-// X is width, Y is depth/thickness, and Z is height. // Defines the coordinate convention.
-// OpenSCAD Customizer reads section titles written inside square brackets. // Explains the bracketed headings below.
+/* Comments and documentation added for easier maintenance. */ 
+/* ========================================================================== */ 
+// All dimensions in this file are millimeters. 
+// X is width, Y is depth/thickness, and Z is height. 
 
 /* [Display options] */ // Groups settings that control preview visibility.
 show_dovetail = true; // Shows the male dovetail part.

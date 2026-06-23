@@ -20,6 +20,7 @@ profile_curve_fn = 64;
 scale_sphere_fn = 12;
 
 /* [Jaw parameters] */
+
 // Gap clearance around the moving jaw (0.4mm guarantees free movement without welding)
 jaw_clearance = 0.2;
 // How far the mouth cuts into the head -> determines the length of the jaw bone
@@ -52,6 +53,12 @@ upper_jaw_lip_overlap = 0.22;
 // Extra length beyond the upper lip where the thickening gradually fades out. This creates a smoother transition and 
 // prevents a sudden change in thickness that could be prone to breaking.
 upper_jaw_lip_side_skin = 0;
+
+/* [Tongue parameters] */
+// Adds a simple flat tongue. It breaks easy, but it adds a fun visual element to the snake. 
+enable_tongue = true;
+tongue_width = 2.0;
+length_from_snout_tip = 0;
 
 /* [Hinge parameters] */
 // Keep this at 2-3 layer heights for PETG/TPU; PLA may need a slightly longer flex section.
@@ -659,13 +666,13 @@ module nostril_cutouts() {
 
 module tongue_geometry() {
     // Tongue sits exclusively in the lower space, avoiding ANY upper jaw intersections entirely.
-    tongue_z = mouth_z_eval - 0.2; 
+    tongue_z = mouth_z_eval - 0.4; 
     // drop_dist sets how far the tongue descends before it runs along the bed.
-    drop_dist = tongue_z - 0.5; 
-    tongue_width = 2.0;
+    drop_dist = tongue_z - 0.4; 
+  
     
     color(tongue_color)
-    translate([snout_tip_x, 0, tongue_z]) {
+    translate([snout_tip_x - length_from_snout_tip, 0, tongue_z]) {
         // TONGUE ROOT / ANCHOR (Deep dovetail lock inside the lower jaw, fully support free)
         hull() {
             // The square/diamond cylinders make a mechanical key inside the lower jaw.
@@ -718,7 +725,9 @@ module raw_assembly() {
         upper_jaw_lip_add();
         living_hinge_add(); 
         color(eye_color) internal_eye_structure();
-        tongue_geometry();
+        if (enable_tongue){
+            tongue_geometry();
+        }
     }
 }
 
