@@ -28,6 +28,14 @@ radial_pieces = 4;        // [1:1:16]
 // Number of attachable sections stacked in height
 height_pieces = 3;        // [1:1:10]
 
+/* [Connector Systems] */
+// Use the original loose peg and socket system
+use_socket_pegs = true;
+// Use loose internal dovetail keys on the inside of vertical radial seams
+use_inner_dovetail_keys = true;
+// Add small snap-retention dimples for the loose internal dovetail keys
+use_inner_snap_locks = false;
+
 /* [Separate Peg Connectors] */
 // Peg radius; matching sockets include clearance automatically
 connector_radius = 3;     // [1.5:0.25:8]
@@ -60,11 +68,43 @@ side_socket_axis_angle_offset = 0; // [-30:0.5:30]
 // Show loose printable pegs next to the pot
 show_loose_pegs = true;
 
+/* [Inner Dovetail Keys] */
+// Number of loose inner keys per vertical radial seam and height section
+inner_keys_per_vertical_seam = 1; // [1:1:5]
+// Width of each loose inner key across the seam
+inner_key_width = 16; // [6:1:40]
+// Height of each loose inner key
+inner_key_height = 28; // [8:1:80]
+// Depth of the internal dovetail pocket into the pot wall
+inner_key_depth = 3; // [1:0.5:10]
+// Clearance added to the recessed pocket around the loose key
+inner_key_clearance = 0.35; // [0:0.05:1.5]
+// Dovetail taper ratio. Smaller top makes the key more dovetail-like.
+inner_key_top_width_ratio = 0.65; // [0.3:0.05:1]
+// Keep keys away from horizontal section boundaries
+inner_key_z_margin = 8; // [0:1:40]
+// Radial adjustment for the internal dovetail pockets and keys
+inner_key_radial_offset = 0; // [-10:0.5:10]
+// Tangential adjustment along the seam plane
+inner_key_tangent_offset = 0; // [-10:0.5:10]
+// Show loose printable inner keys next to the pot
+show_inner_keys = true;
+
+/* [Inner Snap Retention] */
+// Radius of the small retention bumps on loose inner keys
+inner_snap_radius = 1.0; // [0.3:0.1:3]
+// How far the snap bump protrudes into its matching recess
+inner_snap_depth = 0.45; // [0.1:0.05:1.5]
+// Extra clearance for the snap recesses in the pot wall
+inner_snap_clearance = 0.25; // [0:0.05:1]
+// Position of snap bumps along the key height
+inner_snap_position_fraction = 0.32; // [0.15:0.05:0.45]
+
 /* [Display] */
 // Separate sections slightly in assembled view
 explode_distance = 10;    // [0:1:100]
 // Display mode
-display_mode = "assembled"; // [assembled, print_layout, single_piece, pegs_only]
+display_mode = "assembled"; // [assembled, print_layout, single_piece, pegs_only, inner_keys_only]
 // Radial section shown in single_piece mode
 single_piece_radial_index = 0; // [0:1:15]
 // Height section shown in single_piece mode
@@ -76,26 +116,31 @@ piece_color_2 = "#F28E2B"; // 7
 piece_color_3 = "#59A14F"; // 7
 piece_color_4 = "#B07AA1"; // 7
 peg_color = "#DDDDDD";     // 7
+inner_key_color = "#CCCCCC"; // 7
 $fn = 48;
 
 effective_wall_thickness = min(wall_thickness, pot_bottom_radius - 6);
 effective_lip_transition_height = min(lip_transition_height, max(0, pot_height - lip_height - bottom_thickness));
 effective_connector_radius = min(connector_radius, effective_wall_thickness * 0.38);
+effective_inner_key_depth = min(inner_key_depth, effective_wall_thickness * 0.7);
 socket_radius = effective_connector_radius + connector_clearance;
 outer_preview_radius = max(pot_top_radius + lip_width + 20, pot_bottom_radius + 20);
 
 function radius_at_height(height_value) = pot_bottom_radius + (pot_top_radius - pot_bottom_radius) * (height_value / pot_height);
+function inner_radius_at_height(height_value) = max(1, radius_at_height(height_value) - effective_wall_thickness);
 function socket_center_radius(height_value) = radius_at_height(height_value) - (socket_auto_center ? effective_wall_thickness * 0.5 : 0) + socket_radial_offset;
 function vertical_socket_center_radius(height_value) = socket_center_radius(height_value) + vertical_socket_radial_offset;
 function side_socket_center_radius(height_value) = socket_center_radius(height_value) + side_socket_radial_offset;
+function inner_key_center_radius(height_value, pocket_clearance = 0) = inner_radius_at_height(height_value) + (effective_inner_key_depth + pocket_clearance) * 0.5 + inner_key_radial_offset;
 function piece_color(radial_index, height_index) =
     ((radial_index + height_index) % 4 == 0) ? piece_color_1 :
     ((radial_index + height_index) % 4 == 1) ? piece_color_2 :
     ((radial_index + height_index) % 4 == 2) ? piece_color_3 : piece_color_4;
 
-function vertical_joint_peg_count() = radial_pieces * max(0, height_pieces - 1) * ((radial_pieces <= 1) ? max(3, vertical_pegs_per_section * 2) : vertical_pegs_per_section);
-function side_joint_peg_count() = (radial_pieces > 1) ? radial_pieces * height_pieces * side_pegs_per_section : 0;
+function vertical_joint_peg_count() = use_socket_pegs ? radial_pieces * max(0, height_pieces - 1) * ((radial_pieces <= 1) ? max(3, vertical_pegs_per_section * 2) : vertical_pegs_per_section) : 0;
+function side_joint_peg_count() = (use_socket_pegs && radial_pieces > 1) ? radial_pieces * height_pieces * side_pegs_per_section : 0;
 function total_loose_peg_count() = vertical_joint_peg_count() + side_joint_peg_count();
+function total_inner_key_count() = (use_inner_dovetail_keys && radial_pieces > 1) ? radial_pieces * height_pieces * inner_keys_per_vertical_seam : 0;
 
 module rounded_dowel(dowel_radius, dowel_length) {
     rotate([0, 90, 0])
@@ -111,6 +156,58 @@ module vertical_dowel(dowel_radius, dowel_length) {
         cylinder(r = dowel_radius, h = dowel_length, center = true, $fn = 40);
         translate([0, 0, dowel_length / 2]) sphere(r = dowel_radius, $fn = 40);
         translate([0, 0, -dowel_length / 2]) sphere(r = dowel_radius, $fn = 40);
+    }
+}
+
+module dovetail_key_body(key_width, key_depth, key_height, clearance = 0) {
+    bottom_width = key_width + clearance * 2;
+    top_width = key_width * inner_key_top_width_ratio + clearance * 2;
+    depth_value = key_depth + clearance * 2;
+    linear_extrude(height = key_height + clearance * 2, center = true)
+        polygon([
+            [-depth_value / 2, -bottom_width / 2],
+            [ depth_value / 2, -top_width / 2],
+            [ depth_value / 2,  top_width / 2],
+            [-depth_value / 2,  bottom_width / 2]
+        ]);
+}
+
+module loose_inner_key() {
+    union() {
+        dovetail_key_body(inner_key_width, effective_inner_key_depth, inner_key_height, 0);
+        if (use_inner_snap_locks) {
+            for (z_sign = [-1, 1]) {
+                translate([effective_inner_key_depth / 2 + inner_snap_depth * 0.5, 0, z_sign * inner_key_height * inner_snap_position_fraction])
+                    sphere(r = inner_snap_radius, $fn = 24);
+            }
+        }
+    }
+}
+
+module inner_key_recess_at(seam_angle, key_z) {
+    recess_clearance = inner_key_clearance;
+    recess_radius = inner_key_center_radius(key_z, recess_clearance);
+    translate([
+        recess_radius * cos(seam_angle) + inner_key_tangent_offset * cos(seam_angle + 90),
+        recess_radius * sin(seam_angle) + inner_key_tangent_offset * sin(seam_angle + 90),
+        key_z
+    ])
+        rotate([0, 0, seam_angle])
+            dovetail_key_body(inner_key_width, effective_inner_key_depth, inner_key_height, recess_clearance);
+}
+
+module inner_snap_recesses_at(seam_angle, key_z) {
+    if (use_inner_snap_locks) {
+        recess_radius = inner_key_center_radius(key_z, inner_key_clearance);
+        for (z_sign = [-1, 1]) {
+            translate([
+                recess_radius * cos(seam_angle) + inner_key_tangent_offset * cos(seam_angle + 90),
+                recess_radius * sin(seam_angle) + inner_key_tangent_offset * sin(seam_angle + 90),
+                key_z + z_sign * inner_key_height * inner_snap_position_fraction
+            ])
+                rotate([0, 90, seam_angle])
+                    cylinder(r = inner_snap_radius + inner_snap_clearance, h = inner_snap_depth + inner_key_clearance + 1.0, center = true, $fn = 24);
+        }
     }
 }
 
@@ -186,7 +283,7 @@ module height_cut_volume(height_index) {
 
 module vertical_socket_holes_for_section(radial_index, height_index) {
     // Loose vertical dowels fit into matching top/bottom sockets between stacked sections.
-    if (height_pieces > 1) {
+    if (use_socket_pegs && height_pieces > 1) {
         for (seam_direction = [-1, 1]) {
             seam_z = (seam_direction < 0) ? height_index * pot_height / height_pieces : (height_index + 1) * pot_height / height_pieces;
             if (seam_z > 0 && seam_z < pot_height) {
@@ -211,7 +308,7 @@ module vertical_socket_holes_for_section(radial_index, height_index) {
 
 module side_socket_holes_for_section(radial_index, height_index) {
     // Loose horizontal dowels bridge the vertical radial seams.
-    if (radial_pieces > 1) {
+    if (use_socket_pegs && radial_pieces > 1) {
         for (side_selector = [0, 1]) {
             seam_angle = (radial_index + side_selector) * 360 / radial_pieces;
             for (peg_number = [1 : side_pegs_per_section]) {
@@ -232,6 +329,23 @@ module side_socket_holes_for_section(radial_index, height_index) {
     }
 }
 
+module inner_key_recesses_for_section(radial_index, height_index) {
+    if (use_inner_dovetail_keys && radial_pieces > 1) {
+        section_height = pot_height / height_pieces;
+        usable_height = max(1, section_height - inner_key_z_margin * 2);
+        for (side_selector = [0, 1]) {
+            seam_angle = (radial_index + side_selector) * 360 / radial_pieces;
+            for (key_number = [1 : inner_keys_per_vertical_seam]) {
+                local_fraction = key_number / (inner_keys_per_vertical_seam + 1);
+                raw_key_z = height_index * section_height + inner_key_z_margin + local_fraction * usable_height;
+                key_z = min(pot_height - inner_key_height / 2 - 0.2, max(inner_key_height / 2 + 0.2, raw_key_z));
+                inner_key_recess_at(seam_angle, key_z);
+                inner_snap_recesses_at(seam_angle, key_z);
+            }
+        }
+    }
+}
+
 module modular_section(radial_index, height_index) {
     difference() {
         intersection() {
@@ -241,6 +355,7 @@ module modular_section(radial_index, height_index) {
         }
         vertical_socket_holes_for_section(radial_index, height_index);
         side_socket_holes_for_section(radial_index, height_index);
+        inner_key_recesses_for_section(radial_index, height_index);
     }
 }
 
@@ -259,6 +374,23 @@ module loose_connector_pegs() {
     }
 }
 
+module loose_inner_keys() {
+    key_count = total_inner_key_count();
+    if (key_count > 0) {
+        columns = ceil(sqrt(key_count));
+        spacing_x = inner_key_width + 8;
+        spacing_y = inner_key_height + 8;
+        for (key_index = [0 : key_count - 1]) {
+            x_position = (key_index % columns) * spacing_x;
+            y_position = floor(key_index / columns) * spacing_y;
+            translate([x_position, y_position, inner_key_height / 2])
+                rotate([90, 0, 0])
+                    color(inner_key_color)
+                        loose_inner_key();
+        }
+    }
+}
+
 module assembled_pot() {
     for (height_index = [0 : height_pieces - 1]) {
         for (radial_index = [0 : radial_pieces - 1]) {
@@ -273,9 +405,13 @@ module assembled_pot() {
                     modular_section(radial_index, height_index);
         }
     }
-    if (show_loose_pegs) {
+    if (show_loose_pegs && use_socket_pegs) {
         translate([outer_preview_radius * 1.65, -outer_preview_radius * 0.7, 0])
             loose_connector_pegs();
+    }
+    if (show_inner_keys && use_inner_dovetail_keys) {
+        translate([outer_preview_radius * 1.65, outer_preview_radius * 0.35, 0])
+            loose_inner_keys();
     }
 }
 
@@ -296,10 +432,14 @@ module print_layout() {
                         modular_section(radial_index, height_index);
         }
     }
-    if (show_loose_pegs) {
-        rows = ceil(total_sections / columns);
+    rows = ceil(total_sections / columns);
+    if (show_loose_pegs && use_socket_pegs) {
         translate([0, rows * layout_spacing + connector_length, 0])
             loose_connector_pegs();
+    }
+    if (show_inner_keys && use_inner_dovetail_keys) {
+        translate([outer_preview_radius, rows * layout_spacing + connector_length, 0])
+            loose_inner_keys();
     }
 }
 
@@ -312,9 +452,13 @@ module selected_single_piece() {
         rotate([0, 0, -middle_angle])
             color(piece_color(selected_radial, selected_height))
                 modular_section(selected_radial, selected_height);
-    if (show_loose_pegs) {
+    if (show_loose_pegs && use_socket_pegs) {
         translate([outer_preview_radius * 0.9, 0, 0])
             loose_connector_pegs();
+    }
+    if (show_inner_keys && use_inner_dovetail_keys) {
+        translate([outer_preview_radius * 0.9, outer_preview_radius * 0.35, 0])
+            loose_inner_keys();
     }
 }
 
@@ -324,6 +468,8 @@ if (display_mode == "print_layout") {
     selected_single_piece();
 } else if (display_mode == "pegs_only") {
     loose_connector_pegs();
+} else if (display_mode == "inner_keys_only") {
+    loose_inner_keys();
 } else {
     assembled_pot();
 }
