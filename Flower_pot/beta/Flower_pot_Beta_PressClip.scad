@@ -41,12 +41,15 @@ side_socket_axis_angle_offset = 0; // [-30:0.5:30]
 side_socket_length_extra = 0.4; // [0:0.1:20]
 show_loose_pegs = true;
 
-/* [Inner Press Dogbone Clips] */
+/* [Inner Press Clips] */
+// rounded_bar is the new press-in bar style. dogbone is the O---O style.
+press_clip_style = "rounded_bar"; // [rounded_bar, dogbone]
 press_clip_end_radius = 4; // [2:0.5:12]
 press_clip_neck_width = 4; // [1.5:0.5:12]
 press_clip_length = 24; // [10:1:70]
 press_clip_depth = 2.2; // [1:0.5:8]
 press_clip_clearance = 0.35; // [0:0.05:1.5]
+// Horizontal split in each end of the loose clip for spring compression. 0 disables it.
 press_clip_split_gap = 0.7; // [0:0.1:3]
 press_clip_radial_offset = 0; // [-10:0.5:10]
 press_clip_tangent_offset = 0; // [-10:0.5:10]
@@ -109,41 +112,54 @@ module vertical_dowel(r, len) {
     }
 }
 
-module dogbone_2d(len, end_r, neck_w, clearance = 0) {
+module dogbone_base_2d(len, end_r, neck_w, clearance = 0) {
     er = end_r + clearance;
     nw = neck_w + clearance * 2;
-    hull() {
+    union() {
         translate([-len / 2, 0]) circle(r = er, $fn = 36);
         translate([ len / 2, 0]) circle(r = er, $fn = 36);
+        square([len, nw], center = true);
     }
-    square([len, nw], center = true);
 }
 
-module flat_press_clip(len = press_clip_length, end_r = press_clip_end_radius, neck_w = press_clip_neck_width, depth = effective_press_clip_depth, clearance = 0, orientation = "tangent", split_gap = press_clip_split_gap) {
-    // Local coordinates after placement:
-    // X = radial depth into wall, Y = tangent direction, Z = vertical direction.
-    // orientation="tangent" gives O---O across a vertical seam.
-    // orientation="vertical" gives O---O across a horizontal seam.
-    difference() {
-        rotate([0, 90, 0])
-            linear_extrude(height = depth + clearance * 2, center = true)
-                if (orientation == "vertical")
-                    dogbone_2d(len, end_r, neck_w, clearance);
-                else
-                    rotate([0, 0, 90]) dogbone_2d(len, end_r, neck_w, clearance);
+module rounded_bar_base_2d(len, end_r, neck_w, clearance = 0) {
+    er = end_r + clearance;
+    nw = max(neck_w + clearance * 2, er * 1.6);
+    hull() {
+        translate([-len / 2, 0]) circle(r = nw / 2, $fn = 36);
+        translate([ len / 2, 0]) circle(r = nw / 2, $fn = 36);
+    }
+}
 
+module press_clip_2d(len, end_r, neck_w, clearance = 0, style = press_clip_style, split_gap = press_clip_split_gap) {
+    difference() {
+        if (style == "dogbone")
+            dogbone_base_2d(len, end_r, neck_w, clearance);
+        else
+            rounded_bar_base_2d(len, end_r, neck_w, clearance);
+
+        // Spring slit: horizontal slot in each end, from the outside toward the centre.
+        // It is only added to the loose clip, not to the wall recess.
         if (split_gap > 0 && clearance == 0) {
-            if (orientation == "vertical") {
-                for (s = [-1, 1])
-                    translate([0, 0, -s * len / 2])
-                        cube([depth + 2, split_gap, end_r * 2.6], center = true);
-            } else {
-                for (s = [-1, 1])
-                    translate([0, s * len / 2, 0])
-                        cube([depth + 2, split_gap, end_r * 2.6], center = true);
-            }
+            slot_len = end_r * 1.7;
+            for (s = [-1, 1])
+                translate([s * (len / 2 + end_r * 0.18), 0])
+                    square([slot_len, split_gap], center = true);
         }
     }
+}
+
+module flat_press_clip(len = press_clip_length, end_r = press_clip_end_radius, neck_w = press_clip_neck_width, depth = effective_press_clip_depth, clearance = 0, orientation = "tangent", split_gap = press_clip_split_gap, style = press_clip_style) {
+    // Local coordinates after placement:
+    // X = radial depth into wall, Y = tangent direction, Z = vertical direction.
+    // orientation="tangent" gives a horizontal clip across a vertical seam.
+    // orientation="vertical" gives a vertical clip across a horizontal seam.
+    rotate([0, 90, 0])
+        linear_extrude(height = depth + clearance * 2, center = true)
+            if (orientation == "vertical")
+                press_clip_2d(len, end_r, neck_w, clearance, style, split_gap);
+            else
+                rotate([0, 0, 90]) press_clip_2d(len, end_r, neck_w, clearance, style, split_gap);
 }
 
 module main_pot_shell() {
