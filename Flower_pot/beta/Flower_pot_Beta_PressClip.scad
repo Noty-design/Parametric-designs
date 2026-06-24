@@ -45,7 +45,7 @@ show_loose_pegs = true;
 press_clip_end_radius = 4; // [2:0.5:12]
 press_clip_neck_width = 4; // [1.5:0.5:12]
 press_clip_length = 24; // [10:1:70]
-press_clip_depth = 2.5; // [1:0.5:8]
+press_clip_depth = 2.2; // [1:0.5:8]
 press_clip_clearance = 0.35; // [0:0.05:1.5]
 press_clip_split_gap = 0.7; // [0:0.1:3]
 press_clip_radial_offset = 0; // [-10:0.5:10]
@@ -112,14 +112,18 @@ module vertical_dowel(r, len) {
 module dogbone_2d(len, end_r, neck_w, clearance = 0) {
     er = end_r + clearance;
     nw = neck_w + clearance * 2;
-    union() {
+    hull() {
         translate([-len / 2, 0]) circle(r = er, $fn = 36);
         translate([ len / 2, 0]) circle(r = er, $fn = 36);
-        square([len, nw], center = true);
     }
+    square([len, nw], center = true);
 }
 
-module press_clip_body(len = press_clip_length, end_r = press_clip_end_radius, neck_w = press_clip_neck_width, depth = effective_press_clip_depth, clearance = 0, orientation = "tangent", split_gap = press_clip_split_gap) {
+module flat_press_clip(len = press_clip_length, end_r = press_clip_end_radius, neck_w = press_clip_neck_width, depth = effective_press_clip_depth, clearance = 0, orientation = "tangent", split_gap = press_clip_split_gap) {
+    // Local coordinates after placement:
+    // X = radial depth into wall, Y = tangent direction, Z = vertical direction.
+    // orientation="tangent" gives O---O across a vertical seam.
+    // orientation="vertical" gives O---O across a horizontal seam.
     difference() {
         rotate([0, 90, 0])
             linear_extrude(height = depth + clearance * 2, center = true)
@@ -127,13 +131,16 @@ module press_clip_body(len = press_clip_length, end_r = press_clip_end_radius, n
                     dogbone_2d(len, end_r, neck_w, clearance);
                 else
                     rotate([0, 0, 90]) dogbone_2d(len, end_r, neck_w, clearance);
+
         if (split_gap > 0 && clearance == 0) {
             if (orientation == "vertical") {
                 for (s = [-1, 1])
-                    translate([0, 0, s * len / 2]) cube([depth + 2, split_gap, end_r * 2.6], center = true);
+                    translate([0, 0, -s * len / 2])
+                        cube([depth + 2, split_gap, end_r * 2.6], center = true);
             } else {
                 for (s = [-1, 1])
-                    translate([0, s * len / 2, 0]) cube([depth + 2, split_gap, end_r * 2.6], center = true);
+                    translate([0, s * len / 2, 0])
+                        cube([depth + 2, split_gap, end_r * 2.6], center = true);
             }
         }
     }
@@ -228,7 +235,7 @@ module vertical_press_clip_recesses_for_section(ri, hi) {
                 r = press_clip_center_radius(z, press_clip_clearance);
                 translate([r * cos(seam_angle) + press_clip_tangent_offset * cos(seam_angle + 90), r * sin(seam_angle) + press_clip_tangent_offset * sin(seam_angle + 90), z])
                     rotate([0, 0, seam_angle])
-                        press_clip_body(clearance = press_clip_clearance, orientation = "tangent", split_gap = 0);
+                        flat_press_clip(clearance = press_clip_clearance, orientation = "tangent", split_gap = 0);
             }
         }
     }
@@ -246,7 +253,7 @@ module horizontal_press_clip_recesses_for_section(ri, hi) {
                     r = press_clip_center_radius(seam_z, press_clip_clearance);
                     translate([r * cos(a) + press_clip_tangent_offset * cos(a + 90), r * sin(a) + press_clip_tangent_offset * sin(a + 90), seam_z])
                         rotate([0, 0, a])
-                            press_clip_body(clearance = press_clip_clearance, orientation = "vertical", split_gap = 0);
+                            flat_press_clip(clearance = press_clip_clearance, orientation = "vertical", split_gap = 0);
                 }
             }
         }
@@ -282,11 +289,11 @@ module loose_press_clips() {
     n = total_press_clip_count();
     if (n > 0) {
         cols = ceil(sqrt(n));
-        spacing_x = press_clip_length + press_clip_end_radius * 3;
-        spacing_y = press_clip_end_radius * 5;
+        spacing_x = press_clip_length + press_clip_end_radius * 4 + 12;
+        spacing_y = press_clip_end_radius * 5 + 8;
         for (i = [0 : n - 1])
             translate([(i % cols) * spacing_x, floor(i / cols) * spacing_y, effective_press_clip_depth / 2])
-                color(press_clip_color) press_clip_body(split_gap = press_clip_split_gap);
+                color(press_clip_color) flat_press_clip(split_gap = press_clip_split_gap);
     }
 }
 
