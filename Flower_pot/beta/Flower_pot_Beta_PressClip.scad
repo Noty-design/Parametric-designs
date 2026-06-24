@@ -54,14 +54,20 @@ press_clip_split_gap = 0.7; // [0:0.1:3]
 press_clip_radial_offset = 0; // [-10:0.5:10]
 press_clip_tangent_offset = 0; // [-10:0.5:10]
 press_clip_angle_offset = 0; // [-30:0.5:30]
+// Extra twist of the recess shape in the wall plane.
+press_clip_recess_twist_angle = 0; // [-30:0.5:30]
+// Tilt of the recess cutter to better follow the conical inner wall.
+press_clip_wall_tilt_angle = 0; // [-30:0.5:30]
 press_clip_z_margin = 10; // [0:1:40]
 vertical_press_clips_per_seam = 1; // [1:1:5]
 horizontal_press_clips_per_section = 1; // [1:1:5]
 show_press_clips = true;
+// Show the recess cutter geometry as solid debug shapes together with the pot.
+show_press_clip_recess_debug = false;
 
 /* [Display] */
 explode_distance = 10;    // [0:1:100]
-display_mode = "assembled"; // [assembled, print_layout, single_piece, pegs_only, press_clips_only]
+display_mode = "assembled"; // [assembled, print_layout, single_piece, pegs_only, press_clips_only, press_recesses_only]
 single_piece_radial_index = 0; // [0:1:15]
 single_piece_height_index = 0; // [0:1:9]
 
@@ -72,6 +78,7 @@ piece_color_3 = "#59A14F"; // 7
 piece_color_4 = "#B07AA1"; // 7
 peg_color = "#DDDDDD";     // 7
 press_clip_color = "#CCCCCC"; // 7
+press_recess_debug_color = "#FF3333"; // 7
 $fn = 48;
 
 effective_wall_thickness = min(wall_thickness, pot_bottom_radius - 6);
@@ -162,6 +169,18 @@ module flat_press_clip(len = press_clip_length, end_r = press_clip_end_radius, n
                 rotate([0, 0, 90]) press_clip_2d(len, end_r, neck_w, clearance, style, split_gap);
 }
 
+module placed_press_clip_recess(angle, z, orientation = "tangent") {
+    r = press_clip_center_radius(z, press_clip_clearance);
+    translate([
+        r * cos(angle) + press_clip_tangent_offset * cos(angle + 90),
+        r * sin(angle) + press_clip_tangent_offset * sin(angle + 90),
+        z
+    ])
+        rotate([0, 0, angle + press_clip_recess_twist_angle])
+            rotate([0, press_clip_wall_tilt_angle, 0])
+                flat_press_clip(clearance = press_clip_clearance, orientation = orientation, split_gap = 0);
+}
+
 module main_pot_shell() {
     difference() {
         union() {
@@ -248,10 +267,7 @@ module vertical_press_clip_recesses_for_section(ri, hi) {
             for (kn = [1 : vertical_press_clips_per_seam]) {
                 frac = kn / (vertical_press_clips_per_seam + 1);
                 z = hi * section_height + press_clip_z_margin + frac * usable_height;
-                r = press_clip_center_radius(z, press_clip_clearance);
-                translate([r * cos(seam_angle) + press_clip_tangent_offset * cos(seam_angle + 90), r * sin(seam_angle) + press_clip_tangent_offset * sin(seam_angle + 90), z])
-                    rotate([0, 0, seam_angle])
-                        flat_press_clip(clearance = press_clip_clearance, orientation = "tangent", split_gap = 0);
+                placed_press_clip_recess(seam_angle, z, "tangent");
             }
         }
     }
@@ -266,11 +282,19 @@ module horizontal_press_clip_recesses_for_section(ri, hi) {
                 for (kn = [1 : horizontal_press_clips_per_section]) {
                     frac = kn / (horizontal_press_clips_per_section + 1);
                     a = ri * section_angle + frac * section_angle + press_clip_angle_offset;
-                    r = press_clip_center_radius(seam_z, press_clip_clearance);
-                    translate([r * cos(a) + press_clip_tangent_offset * cos(a + 90), r * sin(a) + press_clip_tangent_offset * sin(a + 90), seam_z])
-                        rotate([0, 0, a])
-                            flat_press_clip(clearance = press_clip_clearance, orientation = "vertical", split_gap = 0);
+                    placed_press_clip_recess(a, seam_z, "vertical");
                 }
+            }
+        }
+    }
+}
+
+module all_press_clip_recesses() {
+    if (use_inner_press_clips) {
+        for (hi = [0 : height_pieces - 1]) {
+            for (ri = [0 : radial_pieces - 1]) {
+                vertical_press_clip_recesses_for_section(ri, hi);
+                horizontal_press_clip_recesses_for_section(ri, hi);
             }
         }
     }
@@ -322,6 +346,8 @@ module assembled_pot() {
                 color(piece_color(ri, hi)) modular_section(ri, hi);
         }
     }
+    if (show_press_clip_recess_debug)
+        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
     if (show_loose_pegs && use_socket_pegs)
         translate([outer_preview_radius * 1.65, -outer_preview_radius * 0.7, 0]) loose_connector_pegs();
     if (show_press_clips && use_inner_press_clips)
@@ -340,6 +366,8 @@ module print_layout() {
                 rotate([0, 0, -mid]) color(piece_color(ri, hi)) modular_section(ri, hi);
         }
     }
+    if (show_press_clip_recess_debug)
+        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
     rows = ceil(total_sections / cols);
     if (show_loose_pegs && use_socket_pegs)
         translate([0, rows * layout_spacing + connector_length, 0]) loose_connector_pegs();
@@ -353,6 +381,8 @@ module selected_single_piece() {
     mid = (radial_pieces > 1) ? (sr + 0.5) * 360 / radial_pieces : 0;
     translate([0, 0, -sh * pot_height / height_pieces])
         rotate([0, 0, -mid]) color(piece_color(sr, sh)) modular_section(sr, sh);
+    if (show_press_clip_recess_debug)
+        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
     if (show_loose_pegs && use_socket_pegs)
         translate([outer_preview_radius * 0.9, 0, 0]) loose_connector_pegs();
     if (show_press_clips && use_inner_press_clips)
@@ -367,6 +397,8 @@ if (display_mode == "print_layout") {
     loose_connector_pegs();
 } else if (display_mode == "press_clips_only") {
     loose_press_clips();
+} else if (display_mode == "press_recesses_only") {
+    color(press_recess_debug_color, 0.85) all_press_clip_recesses();
 } else {
     assembled_pot();
 }
