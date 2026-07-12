@@ -41,8 +41,41 @@ side_socket_axis_angle_offset = 0; // [-30:0.5:30]
 side_socket_length_extra = 0.4; // [0:0.1:20]
 show_loose_pegs = true;
 
+/* [Local Connector Reinforcements] */
+// Add local pads on the inside wall around peg sockets.
+// Intended to allow a thin general wall, for example 3 mm.
+use_connector_bosses = true;
+
+// How far each reinforcement extends inward from the inner wall.
+connector_boss_inward_depth = 2.4; // [0.5:0.1:8]
+
+// Extra material around the socket, measured from the socket edge.
+connector_boss_margin = 1.8; // [0.5:0.1:6]
+
+// Small overlap into the existing wall to guarantee a solid union.
+connector_boss_wall_overlap = 0.6; // [0.2:0.1:2]
+
+// Height of reinforcement around vertical peg sockets at horizontal seams.
+vertical_connector_boss_height = 8; // [3:0.5:20]
+
+// Extra tangential length around side sockets in vertical seams.
+side_connector_boss_length_margin = 2; // [0:0.5:10]
+
+/* [Local Press Clip Reinforcements] */
+// Add local pads behind the recessed press-clip pockets.
+use_press_clip_bosses = true;
+
+// Additional wall thickness behind each press-clip recess.
+press_clip_boss_inward_depth = 1.8; // [0.5:0.1:8]
+
+// Extra material around the press-clip recess outline.
+press_clip_boss_margin = 1.5; // [0.5:0.1:6]
+
+// Overlap into the original wall to guarantee a solid union.
+press_clip_boss_wall_overlap = 0.6; // [0.2:0.1:2]
+
 /* [Inner Press Clips] */
-// rounded_bar is the new press-in bar style. dogbone is the O---O style.
+// rounded_bar is the press-in bar style. dogbone is the O---O style.
 press_clip_style = "rounded_bar"; // [rounded_bar, dogbone]
 press_clip_end_radius = 4; // [2:0.5:12]
 press_clip_neck_width = 4; // [1.5:0.5:12]
@@ -56,8 +89,12 @@ press_clip_tangent_offset = 0; // [-10:0.5:10]
 press_clip_angle_offset = 0; // [-30:0.5:30]
 // Extra twist of the recess shape in the wall plane.
 press_clip_recess_twist_angle = 0; // [-30:0.5:30]
-// Tilt of the recess cutter to better follow the conical inner wall.
-press_clip_wall_tilt_angle = 0; // [-30:0.5:30]
+// Automatically follow the conical inner wall angle.
+press_clip_auto_wall_tilt = true;
+// Fine correction added to the calculated wall angle.
+press_clip_wall_tilt_offset = 0; // [-15:0.1:15]
+// Used only when automatic wall tilt is disabled.
+press_clip_wall_tilt_angle = 0; // [-30:0.1:30]
 press_clip_z_margin = 10; // [0:1:40]
 vertical_press_clips_per_seam = 1; // [1:1:5]
 horizontal_press_clips_per_section = 1; // [1:1:5]
@@ -88,27 +125,81 @@ effective_press_clip_depth = min(press_clip_depth, effective_wall_thickness * 0.
 socket_radius = effective_connector_radius + connector_clearance;
 outer_preview_radius = max(pot_top_radius + lip_width + 20, pot_bottom_radius + 20);
 
-function radius_at_height(z) = pot_bottom_radius + (pot_top_radius - pot_bottom_radius) * (z / pot_height);
-function inner_radius_at_height(z) = max(1, radius_at_height(z) - effective_wall_thickness);
-function socket_center_radius(z) = radius_at_height(z) - (socket_auto_center ? effective_wall_thickness * 0.5 : 0) + socket_radial_offset;
-function vertical_socket_center_radius(z) = socket_center_radius(z) + vertical_socket_radial_offset;
-function side_socket_center_radius(z) = socket_center_radius(z) + side_socket_radial_offset;
-function press_clip_center_radius(z, clearance = 0) = inner_radius_at_height(z) + (effective_press_clip_depth + clearance) * 0.5 + press_clip_radial_offset;
+connector_boss_tangent_width =
+    2 * (socket_radius + connector_boss_margin);
+
+side_connector_boss_tangent_width =
+    connector_length + 2 * side_connector_boss_length_margin;
+
+side_connector_boss_height =
+    2 * (socket_radius + connector_boss_margin);
+
+function radius_at_height(z) =
+    pot_bottom_radius + (pot_top_radius - pot_bottom_radius) * (z / pot_height);
+
+function inner_radius_at_height(z) =
+    max(1, radius_at_height(z) - effective_wall_thickness);
+
+function socket_center_radius(z) =
+    radius_at_height(z)
+    - (socket_auto_center ? effective_wall_thickness * 0.5 : 0)
+    + socket_radial_offset;
+
+function vertical_socket_center_radius(z) =
+    socket_center_radius(z) + vertical_socket_radial_offset;
+
+function side_socket_center_radius(z) =
+    socket_center_radius(z) + side_socket_radial_offset;
+
+function pot_wall_tilt_angle() =
+    atan((pot_top_radius - pot_bottom_radius) / pot_height);
+
+function effective_press_clip_wall_tilt() =
+    press_clip_auto_wall_tilt
+        ? pot_wall_tilt_angle() + press_clip_wall_tilt_offset
+        : press_clip_wall_tilt_angle;
+
+function press_clip_recess_depth() =
+    effective_press_clip_depth + press_clip_clearance * 2;
+
 function piece_color(ri, hi) =
     ((ri + hi) % 4 == 0) ? piece_color_1 :
     ((ri + hi) % 4 == 1) ? piece_color_2 :
     ((ri + hi) % 4 == 2) ? piece_color_3 : piece_color_4;
-function vertical_joint_peg_count() = use_socket_pegs ? radial_pieces * max(0, height_pieces - 1) * ((radial_pieces <= 1) ? max(3, vertical_pegs_per_section * 2) : vertical_pegs_per_section) : 0;
-function side_joint_peg_count() = (use_socket_pegs && radial_pieces > 1) ? radial_pieces * height_pieces * side_pegs_per_section : 0;
-function total_loose_peg_count() = vertical_joint_peg_count() + side_joint_peg_count();
-function total_press_clip_count() = use_inner_press_clips ? ((use_vertical_seam_press_clips && radial_pieces > 1) ? radial_pieces * height_pieces * vertical_press_clips_per_seam : 0) + ((use_horizontal_seam_press_clips && height_pieces > 1) ? radial_pieces * (height_pieces - 1) * horizontal_press_clips_per_section : 0) : 0;
+
+function vertical_joint_peg_count() =
+    use_socket_pegs
+        ? radial_pieces * max(0, height_pieces - 1)
+          * ((radial_pieces <= 1)
+                ? max(3, vertical_pegs_per_section * 2)
+                : vertical_pegs_per_section)
+        : 0;
+
+function side_joint_peg_count() =
+    (use_socket_pegs && radial_pieces > 1)
+        ? radial_pieces * height_pieces * side_pegs_per_section
+        : 0;
+
+function total_loose_peg_count() =
+    vertical_joint_peg_count() + side_joint_peg_count();
+
+function total_press_clip_count() =
+    use_inner_press_clips
+        ? ((use_vertical_seam_press_clips && radial_pieces > 1)
+            ? radial_pieces * height_pieces * vertical_press_clips_per_seam
+            : 0)
+          + ((use_horizontal_seam_press_clips && height_pieces > 1)
+            ? radial_pieces * (height_pieces - 1) * horizontal_press_clips_per_section
+            : 0)
+        : 0;
 
 module rounded_dowel(r, len) {
-    rotate([0, 90, 0]) union() {
-        cylinder(r = r, h = len, center = true, $fn = 40);
-        translate([0, 0, len / 2]) sphere(r = r, $fn = 40);
-        translate([0, 0, -len / 2]) sphere(r = r, $fn = 40);
-    }
+    rotate([0, 90, 0])
+        union() {
+            cylinder(r = r, h = len, center = true, $fn = 40);
+            translate([0, 0, len / 2]) sphere(r = r, $fn = 40);
+            translate([0, 0, -len / 2]) sphere(r = r, $fn = 40);
+        }
 }
 
 module vertical_dowel(r, len) {
@@ -122,6 +213,7 @@ module vertical_dowel(r, len) {
 module dogbone_base_2d(len, end_r, neck_w, clearance = 0) {
     er = end_r + clearance;
     nw = neck_w + clearance * 2;
+
     union() {
         translate([-len / 2, 0]) circle(r = er, $fn = 36);
         translate([ len / 2, 0]) circle(r = er, $fn = 36);
@@ -132,23 +224,32 @@ module dogbone_base_2d(len, end_r, neck_w, clearance = 0) {
 module rounded_bar_base_2d(len, end_r, neck_w, clearance = 0) {
     er = end_r + clearance;
     nw = max(neck_w + clearance * 2, er * 1.6);
+
     hull() {
         translate([-len / 2, 0]) circle(r = nw / 2, $fn = 36);
         translate([ len / 2, 0]) circle(r = nw / 2, $fn = 36);
     }
 }
 
-module press_clip_2d(len, end_r, neck_w, clearance = 0, style = press_clip_style, split_gap = press_clip_split_gap) {
+module press_clip_2d(
+    len,
+    end_r,
+    neck_w,
+    clearance = 0,
+    style = press_clip_style,
+    split_gap = press_clip_split_gap
+) {
     difference() {
         if (style == "dogbone")
             dogbone_base_2d(len, end_r, neck_w, clearance);
         else
             rounded_bar_base_2d(len, end_r, neck_w, clearance);
 
-        // Spring slit: horizontal slot in each end, from the outside toward the centre.
-        // It is only added to the loose clip, not to the wall recess.
+        // Horizontal spring slot in each end.
+        // The recess has no slot because split_gap is set to 0 there.
         if (split_gap > 0 && clearance == 0) {
             slot_len = end_r * 1.7;
+
             for (s = [-1, 1])
                 translate([s * (len / 2 + end_r * 0.18), 0])
                     square([slot_len, split_gap], center = true);
@@ -156,84 +257,519 @@ module press_clip_2d(len, end_r, neck_w, clearance = 0, style = press_clip_style
     }
 }
 
-module flat_press_clip(len = press_clip_length, end_r = press_clip_end_radius, neck_w = press_clip_neck_width, depth = effective_press_clip_depth, clearance = 0, orientation = "tangent", split_gap = press_clip_split_gap, style = press_clip_style) {
+module flat_press_clip(
+    len = press_clip_length,
+    end_r = press_clip_end_radius,
+    neck_w = press_clip_neck_width,
+    depth = effective_press_clip_depth,
+    clearance = 0,
+    orientation = "tangent",
+    split_gap = press_clip_split_gap,
+    style = press_clip_style
+) {
     // Local coordinates after placement:
-    // X = radial depth into wall, Y = tangent direction, Z = vertical direction.
-    // orientation="tangent" gives a horizontal clip across a vertical seam.
-    // orientation="vertical" gives a vertical clip across a horizontal seam.
+    // X = radial wall-normal direction
+    // Y = tangent direction
+    // Z = vertical direction
     rotate([0, 90, 0])
-        linear_extrude(height = depth + clearance * 2, center = true)
+        linear_extrude(
+            height = depth + clearance * 2,
+            center = true
+        )
             if (orientation == "vertical")
-                press_clip_2d(len, end_r, neck_w, clearance, style, split_gap);
+                press_clip_2d(
+                    len,
+                    end_r,
+                    neck_w,
+                    clearance,
+                    style,
+                    split_gap
+                );
             else
-                rotate([0, 0, 90]) press_clip_2d(len, end_r, neck_w, clearance, style, split_gap);
+                rotate([0, 0, 90])
+                    press_clip_2d(
+                        len,
+                        end_r,
+                        neck_w,
+                        clearance,
+                        style,
+                        split_gap
+                    );
 }
 
-module placed_press_clip_recess(angle, z, orientation = "tangent") {
-    r = press_clip_center_radius(z, press_clip_clearance);
+module placed_press_clip_recess(
+    angle,
+    z,
+    orientation = "tangent"
+) {
+    wall_tilt = effective_press_clip_wall_tilt();
+    half_depth = press_clip_recess_depth() / 2;
+
+    // Place the cutter from the inner wall surface along the wall normal.
+    // This keeps the upper and lower cutter edges at approximately equal
+    // depth in the conical wall.
+    recess_radius =
+        inner_radius_at_height(z)
+        + half_depth * cos(wall_tilt)
+        + press_clip_radial_offset;
+
+    recess_z =
+        z
+        - half_depth * sin(wall_tilt);
+
     translate([
-        r * cos(angle) + press_clip_tangent_offset * cos(angle + 90),
-        r * sin(angle) + press_clip_tangent_offset * sin(angle + 90),
+        recess_radius * cos(angle)
+            + press_clip_tangent_offset * cos(angle + 90),
+
+        recess_radius * sin(angle)
+            + press_clip_tangent_offset * sin(angle + 90),
+
+        recess_z
+    ])
+        rotate([0, 0, angle + press_clip_recess_twist_angle])
+            rotate([0, wall_tilt, 0])
+                flat_press_clip(
+                    clearance = press_clip_clearance,
+                    orientation = orientation,
+                    split_gap = 0
+                );
+}
+
+module inner_wall_reinforcement_pad(
+    angle,
+    z,
+    tangent_width,
+    pad_height
+) {
+    wall_tilt = effective_press_clip_wall_tilt();
+
+    pad_depth =
+        connector_boss_inward_depth
+        + connector_boss_wall_overlap;
+
+    // The pad extends inward into the pot while overlapping the
+    // original inner wall slightly, so it remains a single solid.
+    pad_center_radius =
+        inner_radius_at_height(z)
+        - connector_boss_inward_depth / 2
+        + connector_boss_wall_overlap / 2;
+
+    translate([
+        pad_center_radius * cos(angle),
+        pad_center_radius * sin(angle),
+        z
+    ])
+        rotate([0, 0, angle])
+            rotate([0, wall_tilt, 0])
+                cube(
+                    [
+                        pad_depth,
+                        tangent_width,
+                        pad_height
+                    ],
+                    center = true
+                );
+}
+
+module vertical_connector_bosses_for_section(ri, hi) {
+    if (
+        use_connector_bosses
+        && use_socket_pegs
+        && height_pieces > 1
+    ) {
+        for (sd = [-1, 1]) {
+            seam_z =
+                (sd < 0)
+                    ? hi * pot_height / height_pieces
+                    : (hi + 1) * pot_height / height_pieces;
+
+            if (seam_z > 0 && seam_z < pot_height) {
+                count =
+                    (radial_pieces <= 1)
+                        ? max(
+                            3,
+                            vertical_pegs_per_section * 2
+                        )
+                        : vertical_pegs_per_section;
+
+                section_angle =
+                    360 / max(1, radial_pieces);
+
+                for (pn = [1 : count]) {
+                    frac = pn / (count + 1);
+
+                    a =
+                        ri * section_angle
+                        + frac * section_angle
+                        + vertical_socket_angle_offset;
+
+                    inner_wall_reinforcement_pad(
+                        a,
+                        seam_z,
+                        connector_boss_tangent_width,
+                        vertical_connector_boss_height
+                    );
+                }
+            }
+        }
+    }
+}
+
+module side_connector_bosses_for_section(ri, hi) {
+    if (
+        use_connector_bosses
+        && use_socket_pegs
+        && radial_pieces > 1
+    ) {
+        for (ss = [0, 1]) {
+            a = (ri + ss) * 360 / radial_pieces;
+
+            for (pn = [1 : side_pegs_per_section]) {
+                frac =
+                    pn / (side_pegs_per_section + 1);
+
+                section_height =
+                    pot_height / height_pieces;
+
+                z =
+                    hi * section_height
+                    + frac * section_height
+                    + side_socket_z_offset;
+
+                zsafe = min(
+                    pot_height - socket_radius - 0.2,
+                    max(socket_radius + 0.2, z+5)
+                );
+
+                inner_wall_reinforcement_pad(
+                    a,
+                    zsafe,
+                    side_connector_boss_tangent_width,
+                    side_connector_boss_height
+                );
+            }
+        }
+    }
+}
+
+module connector_bosses_for_section(ri, hi) {
+    vertical_connector_bosses_for_section(ri, hi);
+    side_connector_bosses_for_section(ri, hi);
+}
+
+module press_clip_reinforcement_pad(
+    angle,
+    z,
+    orientation = "tangent"
+) {
+    wall_tilt = effective_press_clip_wall_tilt();
+
+    pad_depth =
+        press_clip_boss_inward_depth
+        + press_clip_boss_wall_overlap;
+
+    pad_center_radius =
+        inner_radius_at_height(z)
+        - press_clip_boss_inward_depth / 2
+        + press_clip_boss_wall_overlap / 2;
+
+    // Increase the pad footprint around the clip recess.
+    pad_length =
+        press_clip_length
+        + 2 * (
+            press_clip_end_radius
+            + press_clip_boss_margin
+        );
+
+    pad_width =
+        max(
+            press_clip_neck_width,
+            2 * press_clip_end_radius
+        )
+        + 2 * press_clip_boss_margin;
+
+    translate([
+        pad_center_radius * cos(angle),
+        pad_center_radius * sin(angle),
         z
     ])
         rotate([0, 0, angle + press_clip_recess_twist_angle])
-            rotate([0, press_clip_wall_tilt_angle, 0])
-                flat_press_clip(clearance = press_clip_clearance, orientation = orientation, split_gap = 0);
+            rotate([0, wall_tilt, 0])
+                cube(
+                    orientation == "vertical"
+                        ? [
+                            pad_depth,
+                            pad_width,
+                            pad_length
+                        ]
+                        : [
+                            pad_depth,
+                            pad_length,
+                            pad_width
+                        ],
+                    center = true
+                );
+}
+
+module vertical_press_clip_bosses_for_section(ri, hi) {
+    if (
+        use_press_clip_bosses
+        && use_inner_press_clips
+        && use_vertical_seam_press_clips
+        && radial_pieces > 1
+    ) {
+        section_height = pot_height / height_pieces;
+
+        usable_height = max(
+            1,
+            section_height - press_clip_z_margin * 2
+        );
+
+        for (ss = [0, 1]) {
+            seam_angle =
+                (ri + ss) * 360 / radial_pieces;
+
+            for (kn = [1 : vertical_press_clips_per_seam]) {
+                frac =
+                    kn / (vertical_press_clips_per_seam + 1);
+
+                z =
+                    hi * section_height
+                    + press_clip_z_margin
+                    + frac * usable_height;
+
+                press_clip_reinforcement_pad(
+                    seam_angle,
+                    z,
+                    "tangent"
+                );
+            }
+        }
+    }
+}
+
+module horizontal_press_clip_bosses_for_section(ri, hi) {
+    if (
+        use_press_clip_bosses
+        && use_inner_press_clips
+        && use_horizontal_seam_press_clips
+        && height_pieces > 1
+    ) {
+        for (sd = [-1, 1]) {
+            seam_z =
+                (sd < 0)
+                    ? hi * pot_height / height_pieces
+                    : (hi + 1) * pot_height / height_pieces;
+
+            if (seam_z > 0 && seam_z < pot_height) {
+                section_angle =
+                    360 / max(1, radial_pieces);
+
+                for (
+                    kn = [1 : horizontal_press_clips_per_section]
+                ) {
+                    frac =
+                        kn
+                        / (
+                            horizontal_press_clips_per_section
+                            + 1
+                        );
+
+                    a =
+                        ri * section_angle
+                        + frac * section_angle
+                        + press_clip_angle_offset;
+
+                    press_clip_reinforcement_pad(
+                        a,
+                        seam_z,
+                        "vertical"
+                    );
+                }
+            }
+        }
+    }
+}
+
+module press_clip_bosses_for_section(ri, hi) {
+    vertical_press_clip_bosses_for_section(ri, hi);
+    horizontal_press_clip_bosses_for_section(ri, hi);
 }
 
 module main_pot_shell() {
     difference() {
         union() {
-            cylinder(r1 = pot_bottom_radius, r2 = pot_top_radius, h = pot_height);
+            cylinder(
+                r1 = pot_bottom_radius,
+                r2 = pot_top_radius,
+                h = pot_height
+            );
+
             if (lip_width > 0 && effective_lip_transition_height > 0) {
-                transition_start_z = pot_height - lip_height - effective_lip_transition_height;
+                transition_start_z =
+                    pot_height
+                    - lip_height
+                    - effective_lip_transition_height;
+
                 translate([0, 0, transition_start_z])
-                    cylinder(r1 = radius_at_height(transition_start_z), r2 = pot_top_radius + lip_width, h = effective_lip_transition_height);
+                    cylinder(
+                        r1 = radius_at_height(transition_start_z),
+                        r2 = pot_top_radius + lip_width,
+                        h = effective_lip_transition_height
+                    );
             }
+
             if (lip_width > 0 && lip_height > 0)
-                translate([0, 0, pot_height - lip_height]) cylinder(r = pot_top_radius + lip_width, h = lip_height);
+                translate([0, 0, pot_height - lip_height])
+                    cylinder(
+                        r = pot_top_radius + lip_width,
+                        h = lip_height
+                    );
         }
+
         translate([0, 0, bottom_thickness])
-            cylinder(r1 = max(1, pot_bottom_radius - effective_wall_thickness), r2 = max(1, pot_top_radius - effective_wall_thickness - inner_rim_bevel), h = max(1, pot_height - bottom_thickness + 0.02));
+            cylinder(
+                r1 = max(
+                    1,
+                    pot_bottom_radius - effective_wall_thickness
+                ),
+                r2 = max(
+                    1,
+                    pot_top_radius
+                    - effective_wall_thickness
+                    - inner_rim_bevel
+                ),
+                h = max(
+                    1,
+                    pot_height - bottom_thickness + 0.02
+                )
+            );
+
         if (inner_rim_bevel > 0)
             translate([0, 0, pot_height - inner_rim_bevel])
-                cylinder(r1 = max(1, pot_top_radius - effective_wall_thickness - inner_rim_bevel), r2 = max(1, pot_top_radius - effective_wall_thickness), h = inner_rim_bevel + 0.04);
+                cylinder(
+                    r1 = max(
+                        1,
+                        pot_top_radius
+                        - effective_wall_thickness
+                        - inner_rim_bevel
+                    ),
+                    r2 = max(
+                        1,
+                        pot_top_radius - effective_wall_thickness
+                    ),
+                    h = inner_rim_bevel + 0.04
+                );
+
         if (drain_hole_radius > 0)
-            translate([0, 0, -1]) cylinder(r = min(drain_hole_radius, max(1, pot_bottom_radius - effective_wall_thickness - 2)), h = bottom_thickness + 2);
+            translate([0, 0, -1])
+                cylinder(
+                    r = min(
+                        drain_hole_radius,
+                        max(
+                            1,
+                            pot_bottom_radius
+                            - effective_wall_thickness
+                            - 2
+                        )
+                    ),
+                    h = bottom_thickness + 2
+                );
     }
 }
 
 module radial_cut_volume(ri) {
     if (radial_pieces <= 1) {
-        translate([0, 0, -1]) cylinder(r = outer_preview_radius * 3, h = pot_height + 2, $fn = 48);
+        translate([0, 0, -1])
+            cylinder(
+                r = outer_preview_radius * 3,
+                h = pot_height + 2,
+                $fn = 48
+            );
     } else {
         a0 = ri * 360 / radial_pieces;
         a1 = (ri + 1) * 360 / radial_pieces;
         astep = max(2, (a1 - a0) / 12);
-        pts = concat([[0, 0]], [for (a = [a0 : astep : a1]) [outer_preview_radius * 3 * cos(a), outer_preview_radius * 3 * sin(a)]], [[outer_preview_radius * 3 * cos(a1), outer_preview_radius * 3 * sin(a1)]]);
-        translate([0, 0, -1]) linear_extrude(height = pot_height + 2) polygon(pts);
+
+        pts = concat(
+            [[0, 0]],
+            [
+                for (a = [a0 : astep : a1])
+                    [
+                        outer_preview_radius * 3 * cos(a),
+                        outer_preview_radius * 3 * sin(a)
+                    ]
+            ],
+            [[
+                outer_preview_radius * 3 * cos(a1),
+                outer_preview_radius * 3 * sin(a1)
+            ]]
+        );
+
+        translate([0, 0, -1])
+            linear_extrude(height = pot_height + 2)
+                polygon(pts);
     }
 }
 
 module height_cut_volume(hi) {
     z0 = hi * pot_height / height_pieces;
     z1 = (hi + 1) * pot_height / height_pieces;
-    translate([0, 0, z0]) cylinder(r = outer_preview_radius * 3, h = z1 - z0, $fn = 48);
+
+    translate([0, 0, z0])
+        cylinder(
+            r = outer_preview_radius * 3,
+            h = z1 - z0,
+            $fn = 48
+        );
 }
 
 module vertical_socket_holes_for_section(ri, hi) {
     if (use_socket_pegs && height_pieces > 1) {
         for (sd = [-1, 1]) {
-            seam_z = (sd < 0) ? hi * pot_height / height_pieces : (hi + 1) * pot_height / height_pieces;
+            seam_z =
+                (sd < 0)
+                    ? hi * pot_height / height_pieces
+                    : (hi + 1) * pot_height / height_pieces;
+
             if (seam_z > 0 && seam_z < pot_height) {
-                seam_radius = vertical_socket_center_radius(seam_z);
-                count = (radial_pieces <= 1) ? max(3, vertical_pegs_per_section * 2) : vertical_pegs_per_section;
+                seam_radius =
+                    vertical_socket_center_radius(seam_z);
+
+                count =
+                    (radial_pieces <= 1)
+                        ? max(
+                            3,
+                            vertical_pegs_per_section * 2
+                        )
+                        : vertical_pegs_per_section;
+
                 for (pn = [1 : count]) {
                     frac = pn / (count + 1);
-                    section_angle = 360 / max(1, radial_pieces);
-                    a = ri * section_angle + frac * section_angle + vertical_socket_angle_offset;
-                    translate([seam_radius * cos(a) + vertical_socket_tangent_offset * cos(a + 90), seam_radius * sin(a) + vertical_socket_tangent_offset * sin(a + 90), seam_z])
-                        vertical_dowel(socket_radius, connector_length + vertical_socket_length_extra);
+                    section_angle =
+                        360 / max(1, radial_pieces);
+
+                    a =
+                        ri * section_angle
+                        + frac * section_angle
+                        + vertical_socket_angle_offset;
+
+                    translate([
+                        seam_radius * cos(a)
+                            + vertical_socket_tangent_offset
+                            * cos(a + 90),
+
+                        seam_radius * sin(a)
+                            + vertical_socket_tangent_offset
+                            * sin(a + 90),
+
+                        seam_z
+                    ])
+                        vertical_dowel(
+                            socket_radius,
+                            connector_length
+                            + vertical_socket_length_extra
+                        );
                 }
             }
         }
@@ -244,45 +780,126 @@ module side_socket_holes_for_section(ri, hi) {
     if (use_socket_pegs && radial_pieces > 1) {
         for (ss = [0, 1]) {
             a = (ri + ss) * 360 / radial_pieces;
+
             for (pn = [1 : side_pegs_per_section]) {
-                frac = pn / (side_pegs_per_section + 1);
-                section_height = pot_height / height_pieces;
-                z = hi * section_height + frac * section_height + side_socket_z_offset;
-                zsafe = min(pot_height - socket_radius - 0.2, max(socket_radius + 0.2, z));
+                frac =
+                    pn / (side_pegs_per_section + 1);
+
+                section_height =
+                    pot_height / height_pieces;
+
+                z =
+                    hi * section_height
+                    + frac * section_height
+                    + side_socket_z_offset;
+
+                zsafe = min(
+                    pot_height - socket_radius - 0.2,
+                    max(socket_radius + 0.2, z)
+                );
+
                 r = side_socket_center_radius(zsafe);
-                translate([r * cos(a) + side_socket_tangent_offset * cos(a + 90), r * sin(a) + side_socket_tangent_offset * sin(a + 90), zsafe])
-                    rotate([0, 0, a + 90 + side_socket_axis_angle_offset])
-                        rounded_dowel(socket_radius, connector_length + side_socket_length_extra);
+
+                translate([
+                    r * cos(a)
+                        + side_socket_tangent_offset
+                        * cos(a + 90),
+
+                    r * sin(a)
+                        + side_socket_tangent_offset
+                        * sin(a + 90),
+
+                    zsafe
+                ])
+                    rotate([
+                        0,
+                        0,
+                        a
+                        + 90
+                        + side_socket_axis_angle_offset
+                    ])
+                        rounded_dowel(
+                            socket_radius,
+                            connector_length
+                            + side_socket_length_extra
+                        );
             }
         }
     }
 }
 
 module vertical_press_clip_recesses_for_section(ri, hi) {
-    if (use_inner_press_clips && use_vertical_seam_press_clips && radial_pieces > 1) {
+    if (
+        use_inner_press_clips
+        && use_vertical_seam_press_clips
+        && radial_pieces > 1
+    ) {
         section_height = pot_height / height_pieces;
-        usable_height = max(1, section_height - press_clip_z_margin * 2);
+
+        usable_height = max(
+            1,
+            section_height - press_clip_z_margin * 2
+        );
+
         for (ss = [0, 1]) {
-            seam_angle = (ri + ss) * 360 / radial_pieces;
+            seam_angle =
+                (ri + ss) * 360 / radial_pieces;
+
             for (kn = [1 : vertical_press_clips_per_seam]) {
-                frac = kn / (vertical_press_clips_per_seam + 1);
-                z = hi * section_height + press_clip_z_margin + frac * usable_height;
-                placed_press_clip_recess(seam_angle, z, "tangent");
+                frac =
+                    kn / (vertical_press_clips_per_seam + 1);
+
+                z =
+                    hi * section_height
+                    + press_clip_z_margin
+                    + frac * usable_height;
+
+                placed_press_clip_recess(
+                    seam_angle,
+                    z,
+                    "tangent"
+                );
             }
         }
     }
 }
 
 module horizontal_press_clip_recesses_for_section(ri, hi) {
-    if (use_inner_press_clips && use_horizontal_seam_press_clips && height_pieces > 1) {
+    if (
+        use_inner_press_clips
+        && use_horizontal_seam_press_clips
+        && height_pieces > 1
+    ) {
         for (sd = [-1, 1]) {
-            seam_z = (sd < 0) ? hi * pot_height / height_pieces : (hi + 1) * pot_height / height_pieces;
+            seam_z =
+                (sd < 0)
+                    ? hi * pot_height / height_pieces
+                    : (hi + 1) * pot_height / height_pieces;
+
             if (seam_z > 0 && seam_z < pot_height) {
-                section_angle = 360 / max(1, radial_pieces);
-                for (kn = [1 : horizontal_press_clips_per_section]) {
-                    frac = kn / (horizontal_press_clips_per_section + 1);
-                    a = ri * section_angle + frac * section_angle + press_clip_angle_offset;
-                    placed_press_clip_recess(a, seam_z, "vertical");
+                section_angle =
+                    360 / max(1, radial_pieces);
+
+                for (
+                    kn = [1 : horizontal_press_clips_per_section]
+                ) {
+                    frac =
+                        kn
+                        / (
+                            horizontal_press_clips_per_section
+                            + 1
+                        );
+
+                    a =
+                        ri * section_angle
+                        + frac * section_angle
+                        + press_clip_angle_offset;
+
+                    placed_press_clip_recess(
+                        a,
+                        seam_z,
+                        "vertical"
+                    );
                 }
             }
         }
@@ -293,8 +910,15 @@ module all_press_clip_recesses() {
     if (use_inner_press_clips) {
         for (hi = [0 : height_pieces - 1]) {
             for (ri = [0 : radial_pieces - 1]) {
-                vertical_press_clip_recesses_for_section(ri, hi);
-                horizontal_press_clip_recesses_for_section(ri, hi);
+                vertical_press_clip_recesses_for_section(
+                    ri,
+                    hi
+                );
+
+                horizontal_press_clip_recesses_for_section(
+                    ri,
+                    hi
+                );
             }
         }
     }
@@ -303,10 +927,16 @@ module all_press_clip_recesses() {
 module modular_section(ri, hi) {
     difference() {
         intersection() {
-            main_pot_shell();
+            union() {
+                main_pot_shell();
+                connector_bosses_for_section(ri, hi);
+                press_clip_bosses_for_section(ri, hi);
+            }
+
             radial_cut_volume(ri);
             height_cut_volume(hi);
         }
+
         vertical_socket_holes_for_section(ri, hi);
         side_socket_holes_for_section(ri, hi);
         vertical_press_clip_recesses_for_section(ri, hi);
@@ -316,77 +946,187 @@ module modular_section(ri, hi) {
 
 module loose_connector_pegs() {
     n = total_loose_peg_count();
+
     if (n > 0) {
         cols = ceil(sqrt(n));
-        spacing = connector_length + effective_connector_radius * 5;
+        spacing =
+            connector_length
+            + effective_connector_radius * 5;
+
         for (i = [0 : n - 1])
-            translate([(i % cols) * spacing, floor(i / cols) * spacing, effective_connector_radius])
-                color(peg_color) rounded_dowel(effective_connector_radius, connector_length);
+            translate([
+                (i % cols) * spacing,
+                floor(i / cols) * spacing,
+                effective_connector_radius
+            ])
+                color(peg_color)
+                    rounded_dowel(
+                        effective_connector_radius,
+                        connector_length
+                    );
     }
 }
 
 module loose_press_clips() {
     n = total_press_clip_count();
+
     if (n > 0) {
         cols = ceil(sqrt(n));
-        spacing_x = press_clip_length + press_clip_end_radius * 4 + 12;
-        spacing_y = press_clip_end_radius * 5 + 8;
+
+        spacing_x =
+            press_clip_length
+            + press_clip_end_radius * 4
+            + 12;
+
+        spacing_y =
+            press_clip_end_radius * 5
+            + 8;
+
         for (i = [0 : n - 1])
-            translate([(i % cols) * spacing_x, floor(i / cols) * spacing_y, effective_press_clip_depth / 2])
-                color(press_clip_color) flat_press_clip(split_gap = press_clip_split_gap);
+            translate([
+                (i % cols) * spacing_x,
+                floor(i / cols) * spacing_y,
+                effective_press_clip_depth / 2
+            ])
+                color(press_clip_color)
+                    flat_press_clip(
+                        split_gap = press_clip_split_gap
+                    );
     }
 }
 
 module assembled_pot() {
     for (hi = [0 : height_pieces - 1]) {
         for (ri = [0 : radial_pieces - 1]) {
-            mid = (radial_pieces > 1) ? (ri + 0.5) * 360 / radial_pieces : 0;
-            rex = (radial_pieces > 1) ? explode_distance : 0;
-            translate([rex * cos(mid), rex * sin(mid), hi * explode_distance])
-                color(piece_color(ri, hi)) modular_section(ri, hi);
+            mid =
+                (radial_pieces > 1)
+                    ? (ri + 0.5) * 360 / radial_pieces
+                    : 0;
+
+            rex =
+                (radial_pieces > 1)
+                    ? explode_distance
+                    : 0;
+
+            translate([
+                rex * cos(mid),
+                rex * sin(mid),
+                hi * explode_distance
+            ])
+                color(piece_color(ri, hi))
+                    modular_section(ri, hi);
         }
     }
+
     if (show_press_clip_recess_debug)
-        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
+        color(press_recess_debug_color, 0.45)
+            all_press_clip_recesses();
+
     if (show_loose_pegs && use_socket_pegs)
-        translate([outer_preview_radius * 1.65, -outer_preview_radius * 0.7, 0]) loose_connector_pegs();
+        translate([
+            outer_preview_radius * 1.65,
+            -outer_preview_radius * 0.7,
+            0
+        ])
+            loose_connector_pegs();
+
     if (show_press_clips && use_inner_press_clips)
-        translate([outer_preview_radius * 1.65, outer_preview_radius * 0.35, 0]) loose_press_clips();
+        translate([
+            outer_preview_radius * 1.65,
+            outer_preview_radius * 0.35,
+            0
+        ])
+            loose_press_clips();
 }
 
 module print_layout() {
-    total_sections = radial_pieces * height_pieces;
+    total_sections =
+        radial_pieces * height_pieces;
+
     cols = ceil(sqrt(total_sections));
-    layout_spacing = (pot_top_radius + lip_width) * 2.7;
+
+    layout_spacing =
+        (pot_top_radius + lip_width) * 2.7;
+
     for (hi = [0 : height_pieces - 1]) {
         for (ri = [0 : radial_pieces - 1]) {
             si = hi * radial_pieces + ri;
-            mid = (radial_pieces > 1) ? (ri + 0.5) * 360 / radial_pieces : 0;
-            translate([(si % cols) * layout_spacing, floor(si / cols) * layout_spacing, -hi * pot_height / height_pieces])
-                rotate([0, 0, -mid]) color(piece_color(ri, hi)) modular_section(ri, hi);
+
+            mid =
+                (radial_pieces > 1)
+                    ? (ri + 0.5) * 360 / radial_pieces
+                    : 0;
+
+            translate([
+                (si % cols) * layout_spacing,
+                floor(si / cols) * layout_spacing,
+                -hi * pot_height / height_pieces
+            ])
+                rotate([0, 0, -mid])
+                    color(piece_color(ri, hi))
+                        modular_section(ri, hi);
         }
     }
-    if (show_press_clip_recess_debug)
-        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
+
     rows = ceil(total_sections / cols);
+
     if (show_loose_pegs && use_socket_pegs)
-        translate([0, rows * layout_spacing + connector_length, 0]) loose_connector_pegs();
+        translate([
+            0,
+            rows * layout_spacing + connector_length,
+            0
+        ])
+            loose_connector_pegs();
+
     if (show_press_clips && use_inner_press_clips)
-        translate([outer_preview_radius, rows * layout_spacing + connector_length, 0]) loose_press_clips();
+        translate([
+            outer_preview_radius,
+            rows * layout_spacing + connector_length,
+            0
+        ])
+            loose_press_clips();
 }
 
 module selected_single_piece() {
-    sr = min(single_piece_radial_index, radial_pieces - 1);
-    sh = min(single_piece_height_index, height_pieces - 1);
-    mid = (radial_pieces > 1) ? (sr + 0.5) * 360 / radial_pieces : 0;
-    translate([0, 0, -sh * pot_height / height_pieces])
-        rotate([0, 0, -mid]) color(piece_color(sr, sh)) modular_section(sr, sh);
-    if (show_press_clip_recess_debug)
-        color(press_recess_debug_color, 0.45) all_press_clip_recesses();
+    sr = min(
+        single_piece_radial_index,
+        radial_pieces - 1
+    );
+
+    sh = min(
+        single_piece_height_index,
+        height_pieces - 1
+    );
+
+    mid =
+        (radial_pieces > 1)
+            ? (sr + 0.5) * 360 / radial_pieces
+            : 0;
+
+    translate([
+        0,
+        0,
+        -sh * pot_height / height_pieces
+    ])
+        rotate([0, 0, -mid])
+            color(piece_color(sr, sh))
+                modular_section(sr, sh);
+
     if (show_loose_pegs && use_socket_pegs)
-        translate([outer_preview_radius * 0.9, 0, 0]) loose_connector_pegs();
+        translate([
+            outer_preview_radius * 0.9,
+            0,
+            0
+        ])
+            loose_connector_pegs();
+
     if (show_press_clips && use_inner_press_clips)
-        translate([outer_preview_radius * 0.9, outer_preview_radius * 0.35, 0]) loose_press_clips();
+        translate([
+            outer_preview_radius * 0.9,
+            outer_preview_radius * 0.35,
+            0
+        ])
+            loose_press_clips();
 }
 
 if (display_mode == "print_layout") {
@@ -398,7 +1138,8 @@ if (display_mode == "print_layout") {
 } else if (display_mode == "press_clips_only") {
     loose_press_clips();
 } else if (display_mode == "press_recesses_only") {
-    color(press_recess_debug_color, 0.85) all_press_clip_recesses();
+    color(press_recess_debug_color, 0.85)
+        all_press_clip_recesses();
 } else {
     assembled_pot();
 }
