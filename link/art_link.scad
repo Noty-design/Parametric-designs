@@ -1,4 +1,19 @@
-// art_link.scad - Artikulerad länk - en del av länken
+//ALPHA
+
+/* ========================================================================== 
+
+   Articulated link Model for 3D Printing
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+   Description: This model is a single part of an articulated link, which can 
+   be used to create chains or other mechanical assemblies. The model is designed 
+   to be customizable with parameters for length, radius, groove depth, 
+   rod thickness, and more.
+
+    This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+   ========================================================================== */ 
 
 // ===== Parametrar =====
 link_length = 50;        // Längden på länken (mm)

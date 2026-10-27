@@ -1,11 +1,16 @@
-/* ==========================================================================
-   STACKABLE BIN / BOX WITH OPTIONAL LID, MOUNTING RAILS, AND ELFA BRACKET
 
-  Designed: NotyDesign
+/* ========================================================================== 
 
-   This file is intentionally heavily commented so future parameter and geometry
+   Box Model for 3D Printing
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+   Description: 
+
+    This file is intentionally heavily commented so future parameter and geometry
    changes are easier to make safely.
-   ========================================================================== */
+   ========================================================================== */ 
+
 
 /* [Show / Hide Parts] */
 show_box = true;              // Render the main storage bin body.

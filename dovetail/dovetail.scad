@@ -1,9 +1,18 @@
-/* ========================================================================== */ 
-/* Dovetail from the box/bin model, extracted and parameterized. */ 
-/* The dovetail can be screwed or glued to the back of what is mounted. */ 
-/* Designed by Notydesign. */ // Credits the original designer.
-/* Comments and documentation added for easier maintenance. */ 
-/* ========================================================================== */ 
+/* ========================================================================== 
+   Dovetail Model for 3D Printing
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+   
+   Description: Dovetail from the box/bin model, extracted and parameterized. 
+   The dovetail can be screwed or glued to the back of what is mounted. 
+   Designed by Notydesign.  
+   Comments and documentation added for easier maintenance.  
+
+    This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+   ========================================================================== */ 
+
 // All dimensions in this file are millimeters. 
 // X is width, Y is depth/thickness, and Z is height. 
 

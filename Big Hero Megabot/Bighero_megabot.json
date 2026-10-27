@@ -1,0 +1,30 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "Ny uppsättning 1": {
+            "$fn": "100",
+            "body_color": "#1E66AE",
+            "body_diameter": "30",
+            "body_z_offset": "29",
+            "connector_print_flat_cut": "1.5",
+            "explode_distance": "0",
+            "face_diameter": "25",
+            "face_mount": "magnet",
+            "face_style": "happy",
+            "fdm_tolerance": "0.20000000000000001",
+            "feature_black": "#111111",
+            "feature_white": "#FFFFFF",
+            "flat_cut_depth": "1.5",
+            "joint_style": "magnet",
+            "limb_base_diameter": "10",
+            "limb_cone_base_diameter": "15",
+            "limb_length": "50",
+            "limb_outward_offset": "10",
+            "limb_tip_diameter": "5",
+            "limb_transition_length": "10",
+            "magnet_depth": "4.9400000000000004",
+            "magnet_diameter": "4.96",
+            "view_mode": "print_layout"
+        }
+    }
+}

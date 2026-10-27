@@ -1,11 +1,16 @@
-/* ==========================================================================
-   PRINT-IN-PLACE FLEXI SNAKE
-    Author: Noty https://github.com/Noty-design/Parametric-designs
+/* ========================================================================== 
 
-    This is a highly customizable parametric snake toy designed for print-in-place
-    flexibility. 
-   
-   ========================================================================== */
+   PRINT-IN-PLACE FLEXI SNAKE
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+
+   Description: A highly customizable parametric snake toy designed for print-in-place.
+
+    This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+   ========================================================================== */ 
+
 
 /* [Render Quality / Performance] */
 // Higher values make the outside shell smoother but increase OpenSCAD render time.

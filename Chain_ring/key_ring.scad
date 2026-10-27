@@ -1,6 +1,20 @@
 include <BOSL2/std.scad>
 include <BOSL2/skin.scad>
 
+/* ========================================================================== */ 
+/* 
+   Key Ring Model for 3D Printing
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+   Description: This OpenSCAD script generates a customizable key ring model suitable for 3D printing. 
+                The parameters allow for adjustments in size, wire diameter, loop count, and other features.
+                The model includes a flat base for better print stability and can be customized for different aesthetics.
+
+    This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+/* ========================================================================== */ 
+
 /* [Ringens mått] */
 // Ytterdiameter på nyckelringen.
 ring_outer_diameter = 5;       // [5:1:100]

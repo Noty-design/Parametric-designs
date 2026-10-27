@@ -1,3 +1,19 @@
+/* ========================================================================== 
+
+   Elfa Shelf Bracket Model for 3D Printing
+   Designed by Notydesign
+   License: CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+   Source: https://github.com/Noty-design/Parametric-designs
+   
+   Description: Elfa shelf bracket with customizable parameters for number of columns, 
+   teeth, and dimensions.
+
+    This file is intentionally heavily commented so future parameter and geometry
+   changes are easier to make safely.
+   ========================================================================== */ 
+
+
+
 /* [Orientation] */
 model_rotation_x = 180; // [-360:1:360]
 model_rotation_y = 0; // [-360:1:360]
