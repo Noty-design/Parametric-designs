@@ -1,5 +1,5 @@
 /*
-Organic Snake - concept sculpt v25 (optimized eye calculation, same high-res geometry)
+Organic Snake - concept sculpt v28 (almond eye refinement)
 A single continuous parametric OpenSCAD shell, no links or joints.
 Reference: design_references/koncept/ChatGPT Image Nov 13, 2026, 07_32_22 AM-1.png
 Dimensions in mm. Straight orientation for morphology acceptance.
@@ -9,23 +9,23 @@ view_mode="body"; // [body,head]
 head_width_scale=1.0;  // [0.85:0.05:1.25]
 body_width_scale=1.0;  // [0.85:0.05:1.25]
 head_height_scale=1.0; // [0.85:0.05:1.25]
-eye_depth=2.05; // [0.5:0.1:3.3]
-eye_inner_lift=0.58; // [0.2:0.02:0.85]
-eye_rim_height=0.26; // [0:0.02:0.6]
+eye_depth=2.8; // [0.5:0.1:3.3]
+eye_inner_lift=0.14; // [0.2:0.02:0.85]
+eye_rim_height=0.34; // [0:0.02:0.6]
 // Eye shape directly in longitudinal and vertical millimeter coordinates.
-eye_length_radius_mm=9.2; // [6:0.2:13]
-eye_vertical_radius_mm=5.2; // [3:0.2:7]
+eye_length_radius_mm=8.6; // [6:0.2:13]
+eye_vertical_radius_mm=4.7; // [3:0.2:7]
 eye_center_height_mm=2.8; // [0:0.2:6] relative to head center
-eye_rise_per_mm=0.16; // [-0.2:0.02:0.35] posterior rise
+eye_rise_per_mm=0.18; // [-0.2:0.02:0.35] posterior rise
 brow_height=0.85; // [0:0.1:2]
 curve_amplitude=24; // [0:1:22]
 section_step=1.45;
 ring_faces=64;
 // Station: x, half-width, full height, underside height
 profile_source=[
- [-18.0,1.38,3.6,1.48],
- [-17.2,3.25,5.2,1.30],
- [-16.0,4.60,6.35,1.20],
+ [-18.0,1.75,4.25,1.48],
+ [-17.2,3.65,5.65,1.30],
+ [-16.0,4.85,6.60,1.20],
  [-14.5,5.60,7.0,1.14],
  [-12.0,6.30,7.6,1.07],
  [-10.0,6.70,8.0,1.00],
@@ -89,11 +89,11 @@ function eye_r_fast(x,a,h,vert)=let(
 )
  sqrt(pow((x-23.5)/eye_length_radius_mm,2)
    + pow((dz-target_z)/eye_vertical_radius_mm,2)
-   + pow(side_angle/70,6));
+   + pow(side_angle/75,5));
 function eye_relief_r(r)=
-    eye_depth*(exp(-pow(r/0.93,4))-eye_inner_lift*exp(-pow(r/0.50,4)));
+    eye_depth*(exp(-pow(r/0.91,2.7))-eye_inner_lift*exp(-pow(r/0.44,2)));
 function eye_lip_r(r)=
-    eye_rim_height*exp(-pow((r-1.15)/0.31,2));
+    eye_rim_height*exp(-pow((r-1.10)/0.38,2));
 function brow(x,a)=brow_height*
     gaussian((x-31)/12)*
     gaussian(near_pair(a,49,131)/13);
@@ -104,7 +104,7 @@ function lip_line(x,a)=0.35*
     gaussian((x-19)/15)*
     gaussian(near_pair(a,330,210)/5.2);
 // Fuller, lower cheeks beneath the eyes; never new standalone blobs.
-function cheek_rounding(x,a)=2.3*
+function cheek_rounding(x,a)=2.0*
     gaussian((x-25)/13)*
     gaussian(near_pair(a,325,215)/23);
 function head_blend(x)=clamp((72-x)/14,0,1);
