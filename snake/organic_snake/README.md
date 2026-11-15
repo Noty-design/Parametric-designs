@@ -23,3 +23,18 @@ The last technical baseline, regression results, and visual findings should be k
 The surrounding \`models\` repository may have unrelated local edits — do not stage
 or commit those files as part of this project.
 Local changes in this public repository must not be pushed without owner approval.
+
+## Subsequent head iteration: higher resolution (2026-11-15)
+
+- A higher-resolution experimental candidate was tested in the ignored \`_build/\` directory; the tracked model stayed unchanged.
+- The candidate raised mesh resolution to \`ring_faces=96\` and \`section_step=1.20\` while adjusting eye dimensions and muzzle roundness.
+- Native OpenSCAD exports passed solid/watertight verification: head 17,818 triangles, whole body 56,730 triangles.
+- Production Brepia Viewer full-resolution desktop import **timed out**, so this is not an acceptable default model.
+- A reduced-resolution version (\`ring_faces=64\`, \`section_step=1.45\`, 33,706 body triangles) imported on both desktop and mobile, but the sculpted eye remained faceted and was not visually better than v28.
+- Preserve v28 as the active Git model. No high-resolution trial was committed to the main source.
+- Local visual evidence: \`_build/candidate_comparison.jpg\` and \`_build/balanced_candidate_comparison.jpg\` (ignored by Git).
+- Test evidence: Dquark native CAD https://github.com/weaf/local-ai-orchestrator/actions/runs/43752473804
+- Viewer https://github.com/weaf/local-ai-orchestrator/actions/runs/43752616048
+- Balanced CAD/visual https://github.com/weaf/local-ai-orchestrator/actions/runs/43752799500
+
+Next: improve the eye as a smooth local sculpt at the current proven mesh resolution. Do not globally increase tessellation without a comparable Viewer pass.
