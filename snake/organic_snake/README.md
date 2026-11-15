@@ -38,3 +38,22 @@ Local changes in this public repository must not be pushed without owner approva
 - Balanced CAD/visual https://github.com/weaf/local-ai-orchestrator/actions/runs/43752799500
 
 Next: improve the eye as a smooth local sculpt at the current proven mesh resolution. Do not globally increase tessellation without a comparable Viewer pass.
+
+## Local eye mesh redistribution checkpoint (2026-11-15)
+
+- Single editable model remains `organic_snake.scad`, now SHA-256: `9c996bd14f240af02ceac469cb4dd870e3748b888e74d62f68b9add8627cb428`.
+- Reallocates longitudinal mesh stations around the head and eye (`xv(i)`), while keeping the overall number of sections.
+- Reallocates the same 64 angular ring vertices towards the lateral eye through a monotonic 13-degree sine warp that fades by x=61 mm. No functional segments or new solid components.
+- Softens the analytic eye relief and lip width. Concept likeness is **still pending owner visual acceptance**.
+- Body profile control stations, taper, cosmetic seams, joint-free solid construction and tail parameters are otherwise unchanged.
+- Other tested variants (adaptive13, adaptive17, axial-only) remain local ignored development evidence, not separate tracked model versions.
+- Native OpenSCAD CAD PASS for both solid, watertight body and head; body 33,748 STL triangles, head 15,058 triangles.
+- Compared with v28 STL, body volume change -0.0652%, head volume change -0.2029%.
+- Production Viewer PASS at 1280x800 desktop (18.0 seconds) and 390x844 mobile (16.4 seconds), without timeout or page errors, importing the full SCAD source.
+- CAD evidence: `_build/eye_adaptive_20261115/selected_cad_qa.json`
+- Viewer evidence: `_build/eye_adaptive_20261115/viewer_selected/report.json`
+- Visual comparison: `_build/eye_adaptive_20261115/axial_comparison.jpg`
+- Dquark candidate CAD review: https://github.com/weaf/local-ai-orchestrator/actions/runs/43753682802
+- Dquark CAD and production Viewer acceptance: https://github.com/weaf/local-ai-orchestrator/actions/runs/43753907156
+
+Next: compare head eye relief with original concept at consistent camera scales; consider a truly almond-shaped inner socket profile without increasing global mesh resolution or removing the accepted eye shape. Do not push without owner authorization.

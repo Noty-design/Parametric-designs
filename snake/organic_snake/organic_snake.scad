@@ -91,9 +91,9 @@ function eye_r_fast(x,a,h,vert)=let(
    + pow((dz-target_z)/eye_vertical_radius_mm,2)
    + pow(side_angle/75,5));
 function eye_relief_r(r)=
-    eye_depth*(exp(-pow(r/0.91,2.7))-eye_inner_lift*exp(-pow(r/0.44,2)));
+    eye_depth*(exp(-pow(r/0.96,2.25))-eye_inner_lift*exp(-pow(r/0.44,2)));
 function eye_lip_r(r)=
-    eye_rim_height*exp(-pow((r-1.10)/0.38,2));
+    eye_rim_height*exp(-pow((r-1.10)/0.44,2));
 function brow(x,a)=brow_height*
     gaussian((x-31)/12)*
     gaussian(near_pair(a,49,131)/13);
@@ -144,12 +144,18 @@ function surface_pt(x,a)=let(
 x_first=profile[0][0];
 x_last=profile[len(profile)-1][0];
 steps=ceil((x_last-x_first)/section_step);
-function xv(i)=x_first+(x_last-x_first)*i/steps;
+// Preserve face count while allocating more longitudinal rings to the eye region.
+function xv(i)=let(t=i/steps,f=0.30,cut=56)
+  t<=f ? x_first+(cut-x_first)*t/f
+       : cut+(x_last-cut)*(t-f)/(1-f);
 function idx(i,j)=i*ring_faces+j;
+// Redistribute vertices around the lateral eye without adding triangles.
+// The warp is monotonic and vanishes before the first body seam.
+function eye_sample_angle(a,x)=a-13*sin(2*a)*clamp((61-x)/13,0,1);
 module skin_mesh() {
  vertices=concat(
   [for(i=[0:steps],j=[0:ring_faces-1])
-    surface_pt(xv(i),360*j/ring_faces)],
+    surface_pt(xv(i),eye_sample_angle(360*j/ring_faces,xv(i)))],
   [[x_first,center_y(x_first),interp(x_first,3)+section_height(x_first)/2]],
   [[x_last,center_y(x_last),interp(x_last,3)+section_height(x_last)/2]]
  );
