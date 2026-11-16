@@ -6,6 +6,13 @@ Dimensions in mm. Straight orientation for morphology acceptance.
 */
 $fn=48;
 view_mode="body"; // [body,head]
+// Material colors are visible in OpenSCAD F5 preview; STL does not carry colors.
+body_color="#E4D1B6";
+eye_color="#292B33";
+show_eye_inlay=true; // [true,false]
+eye_inlay_length=7.2; // [5:0.2:10]
+eye_inlay_height=2.65; // [1.8:0.1:4.0]
+
 head_width_scale=1.0;  // [0.85:0.05:1.25]
 body_width_scale=1.0;  // [0.85:0.05:1.25]
 head_height_scale=1.0; // [0.85:0.05:1.25]
@@ -210,9 +217,66 @@ module sculpted_body(){
   }
  }
 }
-if(view_mode=="head")
- intersection() {
-  sculpted_body();
-  translate([-20,-40,-5])cube([87,80,40]);
+// A shallow almond lens uses the same analytic head surface as the socket.
+// It intersects the shell for a single printable solid after F6/CGAL union.
+// In F5 preview the body and lens receive different color() materials.
+eye_faces=40;
+eye_rings=3;
+function eye_inlay_coord(t,r,side,offset)=let(
+   x=23.5+eye_inlay_length*r*cos(t),
+   vertical=eye_center_height_mm+(x-23.5)*eye_rise_per_mm
+      +eye_inlay_height*r*sin(t)*sqrt(abs(sin(t))),
+   h=section_height(x)*seam_gain(x),
+   n=x<58?2.12:2,
+   v=clamp(2*vertical/h,-0.90,0.90),
+   side_angle=asin(sign(v)*pow(abs(v),n/2)),
+   a=side>0?side_angle:180-side_angle,
+   pt=surface_pt(x,a))
+ [pt[0],pt[1]+side*offset,pt[2]];
+function eye_idx(r,j)=r*eye_faces+j;
+module eye_inlay(side=1) {
+ points=concat(
+   [for(r=[1:eye_rings],j=[0:eye_faces-1])
+      eye_inlay_coord(360*j/eye_faces,r/eye_rings,side,
+         0.22+0.88*(1-pow(r/eye_rings,2)))],
+   [for(j=[0:eye_faces-1])
+      eye_inlay_coord(360*j/eye_faces,1,side,-0.72)],
+   [eye_inlay_coord(0,0,side,1.17)],
+   [eye_inlay_coord(0,0,side,-0.72)]
+ );
+ outer=eye_rings*eye_faces;
+ top_center=outer+eye_faces;
+ bottom_center=top_center+1;
+ faces=concat(
+   [for(j=[0:eye_faces-1])
+      [top_center,eye_idx(0,j),eye_idx(0,(j+1)%eye_faces)]],
+   [for(r=[0:eye_rings-2],j=[0:eye_faces-1]) each [
+      [eye_idx(r,j),eye_idx(r+1,j),eye_idx(r+1,(j+1)%eye_faces)],
+      [eye_idx(r,j),eye_idx(r+1,(j+1)%eye_faces),eye_idx(r,(j+1)%eye_faces)]
+   ]],
+   [for(j=[0:eye_faces-1]) each [
+      [eye_idx(eye_rings-1,j),outer+j,outer+(j+1)%eye_faces],
+      [eye_idx(eye_rings-1,j),outer+(j+1)%eye_faces,eye_idx(eye_rings-1,(j+1)%eye_faces)]
+   ]],
+   [for(j=[0:eye_faces-1])
+      [bottom_center,outer+(j+1)%eye_faces,outer+j]]
+ );
+ polyhedron(points=points,
+   faces=[for(f=faces) side>0?[f[0],f[2],f[1]]:f],convexity=10);
+}
+module head_clip(){
+ translate([-20,-40,-5])cube([87,80,40]);
+}
+module colored_model() {
+ if(view_mode=="head") {
+    color(body_color) intersection(){sculpted_body();head_clip();}
+    if(show_eye_inlay)
+       for(side=[-1,1]) color(eye_color)
+         eye_inlay(side);
+ } else {
+    color(body_color) sculpted_body();
+    if(show_eye_inlay)
+       for(side=[-1,1]) color(eye_color) eye_inlay(side);
  }
-else sculpted_body();
+}
+colored_model();

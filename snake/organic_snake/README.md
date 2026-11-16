@@ -57,3 +57,19 @@ Next: improve the eye as a smooth local sculpt at the current proven mesh resolu
 - Dquark CAD and production Viewer acceptance: https://github.com/weaf/local-ai-orchestrator/actions/runs/43753907156
 
 Next: compare head eye relief with original concept at consistent camera scales; consider a truly almond-shaped inner socket profile without increasing global mesh resolution or removing the accepted eye shape. Do not push without owner authorization.
+
+## Model colors and visible almond eyes (2026-11-16)
+
+- Editable model stays at snake/organic_snake/organic_snake.scad and uses Git history instead of numbered variants.
+- Warm ivory body color #E4D1B6 and dark slate eye color #292B33 are real OpenSCAD color() definitions with editable parameters.
+- Two shallow physical eye inlays follow the head surface, intersect the body and remain embedded in one watertight 3D model.
+- Eye inlay defaults to visible; show_eye_inlay disables it. Color is displayed in OpenSCAD F5 preview.
+- Production Brepia Viewer desktop and mobile accepted the full-resolution SCAD and reported 2 RGB colors, no preview timeout or page errors.
+- Viewer Fast STL preview and ordinary STL export may display no color: STL has no color channel; change to a color-capable preview or export path where supported.
+- OpenSCAD desktop 2021.01 3MF exporter was observed to emit no explicit color group or base material; do not claim a colored 3MF from this exporter.
+- Native OpenSCAD body/head STL: CAD PASS, watertight, one volumetric geometry, 34352 and 15662 faces respectively.
+- Reference source SHA256: 9c996bd14f240af02ceac469cb4dd870e3748b888e74d62f68b9add8627cb428
+- New source SHA256: de17433e30d14072f9e9a942d7cbf4c7728d2f43158ff978bd714000026e5c56
+- Evidence (ignored local artifacts): _build/colored_eye_20261116/cad_validation.json, viewer_qa/report.json, colored_eye_variants.jpg.
+- Dquark CAD + Viewer proof: https://github.com/weaf/local-ai-orchestrator/actions/runs/43805929318
+- Concept likeness: still awaiting owner visual acceptance; mechanical joints, body and tail unchanged.
