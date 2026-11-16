@@ -13,9 +13,11 @@
 head_length_scale = 1.00; // [0.85:0.05:1.20]
 head_width_scale = 1.00;  // [0.80:0.05:1.25]
 head_height_scale = 1.00; // [0.80:0.05:1.25]
+// Shortens the muzzle without reversing any profile stations. 1 = original length.
+snout_length_ratio = 0.69; // [0.55:0.02:1.00]
 /* [Sculpt details] */
-orbital_depth = 2.1;     // [0.5:0.1:3.0]
-brow_height = 1.75;       // [0:0.1:3.0]
+orbital_depth = 1.7;     // [0.5:0.1:3.0]
+brow_height = 1.45;       // [0:0.1:3.0]
 eye_size = 1.0;         // [0.7:0.05:1.3]
 show_eyes = true;
 render_mode = "presentation"; // [presentation,solid]
@@ -24,12 +26,12 @@ longitudinal_steps = 96; // [48:4:120]
 per_side_steps = 44;     // [24:2:64]
 $fn=36;
 
-// X stations: nose at +48; back cut at -54. These independently control
+// Profile coordinates: original nose station +58, back cut -54. These independently control
 // dorsal ridge, overall plan width, cheek/jaw, and skull proportions.
 skull_width = [
  [-54,16.5],[-46,18.0],[-38,20.5],[-29,23.5],[-20,25.2],[-9,25.3],
  [3,23.8],[13,21.2],[22,18.6],[31,16.3],[38,15.7],[42,15.0],
- [45,13.4],[48,12.4],[51,11.0],[54,8.6],[56.5,5.7],[58,0.2]
+ [45,13.4],[48,12.4],[51,11.7],[54,9.5],[56.5,6.3],[58,0.2]
 ];
 skull_top = [
  [-54,15.8],[-46,17.5],[-38,20.2],[-29,23.3],[-20,25.5],[-9,25.0],
@@ -78,14 +80,14 @@ function cross_section(x) = let(
  [w*.56, lip+(low-lip)*.84],                      // 7 mandible curve
  [0,low]                                          // 8 chin centre
 ];
-function eye_r(x,t) = let(dx=(x+8.0)/(8.5*eye_size), dt=(t-3.0+0.17*dx)/(0.86*eye_size))
+function eye_r(x,t) = let(dx=(x-4.0)/(8.5*eye_size), dt=(t-3.0+0.17*dx)/(0.78*eye_size))
  sqrt(dx*dx+dt*dt);
 // Normal-oriented eye/socket/eyelid relief on the actual lateral skin.
 function eye_socket(x,t) = orbital_depth*exp(-pow(eye_r(x,t)/0.88,2.4)) - 1.12*gaussian(eye_r(x,t)/0.42);
-function brow_ridge(x,t) = brow_height*gaussian((x+8)/13)*gaussian((t-2.30)/0.39);
-function cheek_full(x,t) = 1.20*gaussian((x+8)/18)*gaussian((t-4.18)/0.38);
+function brow_ridge(x,t) = brow_height*gaussian((x-4)/13)*gaussian((t-2.30)/0.39);
+function cheek_full(x,t) = 1.14*gaussian((x-4)/18)*gaussian((t-4.18)/0.38);
 function nasal_bulge(x,t) = 1.0*gaussian((x-34)/11)*gaussian((t-2.7)/1.1);
-function mouth_indent(x,t) = 0.29*gaussian((x-32)/19)*gaussian((t-5.00)/0.073);
+function mouth_indent(x,t) = 0.2*gaussian((x-32)/19)*gaussian((t-5.00)/0.073);
 function surface_at(x,t,side) = let(
  r=cross_section(x),
  y0=rail_interp(r,t,0),
@@ -95,7 +97,7 @@ function surface_at(x,t,side) = let(
  cheek=cheek_full(x,t),
  nose=nasal_bulge(x,t)
 ) [
- x*head_length_scale,
+ body_x(x)*head_length_scale,
  side*(y0 -eye +brow*.55+cheek*.8 +nose*.25-mouth_indent(x,t)),
  z0 +brow*.70-eye*.26+cheek*.20+nose*.5
 ];
@@ -103,12 +105,19 @@ M=longitudinal_steps;
 N=per_side_steps;
 R=2*N;
 function x_at(i)=-54+(58+54)*i/M;
+function body_x(x) = x <= 15 ? x : 15 + (x-15)*snout_length_ratio;
+
+// Guard against accidentally reversing or duplicating X control stations.
+function strictly_ascending(a) = min([for (k=[0:len(a)-2]) a[k+1][0]-a[k][0]]) > 0;
+assert(strictly_ascending(skull_width) && strictly_ascending(skull_top)
+  && strictly_ascending(skull_bottom) && strictly_ascending(lip_height),
+  "X coordinates in all profile arrays must increase strictly.");
 function skin_vertex(i,j)=let(x=x_at(i))
  j < N ? surface_at(x,8*j/N,1):surface_at(x,8*(2*N-j)/N,-1);
 function vertex_index(i,j)=i*R+j;
 module head_skin(){
   pts=concat([for(i=[0:M],j=[0:R-1]) skin_vertex(i,j)],
-    [[-54*head_length_scale,0,0]],[[58*head_length_scale,0,0]]);
+    [[-54*head_length_scale,0,0]],[[body_x(58)*head_length_scale,0,0]]);
   cap0=(M+1)*R; cap1=cap0+1;
   faces=concat(
     [for(i=[0:M-1],j=[0:R-1]) each [
@@ -123,7 +132,7 @@ module head_skin(){
 // Pearl-ivory inner eye: an inset almond, not a black painted hole.
 // Presentation color solids are omitted in render_mode=solid for a one-part STL.
 module eye_inset(side=1){
-  cx=-8.0; ct=3.00; rx=8.2*eye_size; rt=.70*eye_size;
+  cx=4.0; ct=3.00; rx=8.2*eye_size; rt=0.58*eye_size;
   count=36; rings=4;
   function ept(r,a,d) = let(
     xx=cx+rx*r*cos(a),
@@ -141,7 +150,7 @@ module eye_inset(side=1){
        [vid(n,i),vid(n+1,(i+1)%count),vid(n,(i+1)%count)]
      ]]
   );
-  color([0.78,0.77,0.70]) polyhedron(points=pp,faces=side==1?tri:[for(f=tri) [f[0],f[2],f[1]]]);
+  color([0.87,0.86,0.81]) polyhedron(points=pp,faces=side==1?tri:[for(f=tri) [f[0],f[2],f[1]]]);
 }
 module nostril_mark(side=1) {
  color([0.46,0.42,0.34])
