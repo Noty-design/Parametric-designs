@@ -18,8 +18,8 @@ snout_length_ratio = 0.63; // [0.55:0.02:1.00]
 // Length of the rounded tip in original (uncompressed) X coordinates.
 nose_rounding_mm = 5.0; // [3.5:0.5:7.0]
 /* [Sculpt details] */
-orbital_depth = 1.55;     // [0.5:0.1:3.0]
-brow_height = 1.30;       // [0:0.1:3.0]
+orbital_depth = 1.70;     // [0.5:0.1:3.0]
+brow_height = 1.52;       // [0:0.1:3.0]
 eye_size = 1.0;         // [0.7:0.05:1.3]
 show_eyes = true;
 render_mode = "presentation"; // [presentation,solid]
@@ -68,7 +68,7 @@ function cap_radius(x)=sqrt(max(0,1-pow(cap_progress(x),2)));
 function cross_section(x) = let(
  raw_width=curve(skull_width,x)*head_width_scale,
  raw_top=curve(skull_top,x)*head_height_scale,
- raw_bottom=curve(skull_bottom,x)*head_height_scale,
+ raw_bottom=(curve(skull_bottom,x)+1.0*gaussian((x-5)/30))*head_height_scale,
  nose_width=curve(skull_width,nose_cap_start())*head_width_scale,
  nose_top=curve(skull_top,nose_cap_start())*head_height_scale,
  nose_bottom=curve(skull_bottom,nose_cap_start())*head_height_scale,
@@ -95,14 +95,14 @@ function cross_section(x) = let(
  [w*.56, lip+(low-lip)*.84],                      // 7 mandible curve
  [0,low]                                          // 8 chin centre
 ];
-function eye_r(x,t) = let(dx=(x-4.0)/(9.5*eye_size),
-  taper=max(0.55, 1-0.43*pow(abs(dx),1.8)),
-  dt=(t-3.03+0.22*dx)/(0.71*eye_size*taper))
+function eye_r(x,t) = let(dx=(x-(-1.50))/(10.20*eye_size),
+  taper=max(0.54, 1-0.48*pow(abs(dx),1.8)),
+  dt=(t-3.00+0.20*dx)/(0.65*eye_size*taper))
  sqrt(dx*dx+dt*dt);
 // Normal-oriented eye/socket/eyelid relief on the actual lateral skin.
 function eye_socket(x,t) = orbital_depth*exp(-pow(eye_r(x,t)/0.93,2.2)) - 0.80*gaussian(eye_r(x,t)/0.47);
-function brow_ridge(x,t) = brow_height*gaussian((x-4)/13)*gaussian((t-2.42)/0.46);
-function cheek_full(x,t) = 1.14*gaussian((x-4)/18)*gaussian((t-4.18)/0.38);
+function brow_ridge(x,t) = brow_height*gaussian((x-(-1.50))/14)*gaussian((t-2.42)/0.52);
+function cheek_full(x,t) = 1.24*gaussian((x-(-1.50))/19)*gaussian((t-4.18)/0.46);
 function nasal_bulge(x,t) = 1.0*gaussian((x-34)/11)*gaussian((t-2.7)/1.1);
 function mouth_indent(x,t) = 0.2*gaussian((x-32)/19)*gaussian((t-5.00)/0.073);
 function surface_at(x,t,side) = let(
@@ -149,11 +149,11 @@ module head_skin(){
 // Pearl-ivory inner eye: an inset almond, not a black painted hole.
 // Presentation color solids are omitted in render_mode=solid for a one-part STL.
 module eye_inset(side=1){
-  cx=4.0; ct=3.03; rx=9.0*eye_size; rt=0.57*eye_size;
+  cx=-1.50; ct=3.00; rx=9.38*eye_size; rt=0.53*eye_size;
   count=36; rings=4;
   function ept(r,a,d) = let(
     xx=cx+rx*r*cos(a),
-    tt=ct+rt*r*sin(a)*(1-0.42*pow(abs(cos(a)),1.6))-0.22*r*cos(a),
+    tt=ct+rt*r*sin(a)*(1-0.46*pow(abs(cos(a)),1.5))-0.20*r*cos(a),
     p=surface_at(xx,tt,side)
   ) [p[0],p[1]+side*d,p[2]+0.04];
   // Thin skin-conformal sheet, not part of printable solid.
@@ -167,7 +167,7 @@ module eye_inset(side=1){
        [vid(n,i),vid(n+1,(i+1)%count),vid(n,(i+1)%count)]
      ]]
   );
-  color([0.87,0.86,0.81]) polyhedron(points=pp,faces=side==1?tri:[for(f=tri) [f[0],f[2],f[1]]]);
+  color([0.82,0.81,0.76]) polyhedron(points=pp,faces=side==1?tri:[for(f=tri) [f[0],f[2],f[1]]]);
 }
 module nostril_mark(side=1) {
  color([0.46,0.42,0.34])
