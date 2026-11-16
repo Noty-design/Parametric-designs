@@ -15,8 +15,11 @@ head_width_scale = 1.00;  // [0.80:0.05:1.25]
 head_height_scale = 1.00; // [0.80:0.05:1.25]
 // Shortens the muzzle without reversing any profile stations. 1 = original length.
 snout_length_ratio = 0.63; // [0.55:0.02:1.00]
+// Tip station may be shortened without changing eye and skull proportions.
+// This avoids a needle-like snout while preserving the skull rails.
+nose_tip_station = 50.0; // [49:0.5:58]
 // Length of the rounded tip in original (uncompressed) X coordinates.
-nose_rounding_mm = 5.0; // [3.5:0.5:7.0]
+nose_rounding_mm = 4.5; // [3.5:0.5:7.0]
 /* [Sculpt details] */
 orbital_depth = 1.70;     // [0.5:0.1:3.0]
 brow_height = 1.52;       // [0:0.1:3.0]
@@ -32,8 +35,8 @@ $fn=36;
 // dorsal ridge, overall plan width, cheek/jaw, and skull proportions.
 skull_width = [
  [-54,16.5],[-46,18.0],[-38,20.5],[-29,23.5],[-20,25.2],[-9,25.3],
- [3,23.8],[13,21.2],[22,18.6],[31,16.3],[38,15.7],[42,15.0],
- [45,13.4],[48,12.4],[51,11.7],[54,9.5],[56.5,6.3],[58,0.2]
+ [3,23.8],[13,21.2],[22,19.1],[31,17.6],[38,18.0],[42,17.3],
+ [45,15.7],[48,14.7],[51,11.7],[54,9.5],[56.5,6.3],[58,0.2]
 ];
 skull_top = [
  [-54,15.8],[-46,17.5],[-38,20.2],[-29,23.3],[-20,25.5],[-9,25.0],
@@ -62,9 +65,11 @@ function catmull(p0,p1,p2,p3,t) = 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t
 function rail_interp(pts,t,k) = let(i=min(len(pts)-2,floor(t)),f=t-i)
  catmull(pts[max(0,i-1)][k],pts[i][k],pts[i+1][k],pts[min(len(pts)-1,i+2)][k],f);
 // Ellipsoidal rounding of the tip instead of collapsing width and height linearly.
-function nose_cap_start()=58-nose_rounding_mm;
+function nose_cap_start()=nose_tip_station-nose_rounding_mm;
 function cap_progress(x)=clamp((x-nose_cap_start())/nose_rounding_mm,0,1);
 function cap_radius(x)=sqrt(max(0,1-pow(cap_progress(x),2)));
+function rail_derivative(a,x)=(curve(a,x+0.15)-curve(a,x-0.15))/0.30;
+function ease_cap(t)=t*t*(3-2*t);
 function cross_section(x) = let(
  raw_width=curve(skull_width,x)*head_width_scale,
  raw_top=curve(skull_top,x)*head_height_scale,
@@ -76,10 +81,11 @@ function cross_section(x) = let(
  nose_half=(nose_top-nose_bottom)/2,
  cap_t=cap_progress(x),
  cap_r=cap_radius(x),
- w=x>nose_cap_start() ? nose_width*cap_r+0.12*(1-cap_r):raw_width,
- hi=x>nose_cap_start() ? nose_mid*(1-cap_t)-0.15*cap_t+nose_half*cap_r:raw_top,
- low=x>nose_cap_start() ? nose_mid*(1-cap_t)-0.15*cap_t-nose_half*cap_r:raw_bottom,
- lip=curve(lip_height,x)*head_height_scale,
+ w=x>nose_cap_start() ? nose_width*cap_r + head_width_scale*rail_derivative(skull_width,nose_cap_start())*(x-nose_cap_start())*pow(1-cap_t,2)+0.10*(1-cap_r):raw_width,
+ hi=x>nose_cap_start() ? nose_mid+nose_half*cap_r + head_height_scale*rail_derivative(skull_top,nose_cap_start())*(x-nose_cap_start())*pow(1-cap_t,2):raw_top,
+ low=x>nose_cap_start() ? nose_mid-nose_half*cap_r + head_height_scale*rail_derivative(skull_bottom,nose_cap_start())*(x-nose_cap_start())*pow(1-cap_t,2):raw_bottom,
+ raw_lip=curve(lip_height,x)*head_height_scale,
+ lip=x>nose_cap_start() ? raw_lip*(1-ease_cap(cap_progress(x))) + ((nose_top+nose_bottom)/2)*ease_cap(cap_progress(x)) : raw_lip,
  muzzle=gaussian((x-31)/15),
  cranium=gaussian((x+19)/22),
  cheek=gaussian((x-2)/22),
@@ -112,16 +118,20 @@ function surface_at(x,t,side) = let(
  eye=eye_socket(x,t),
  brow=brow_ridge(x,t),
  cheek=cheek_full(x,t),
- nose=nasal_bulge(x,t)
+ nose=nasal_bulge(x,t),
+ tip_fade=x>nose_cap_start()?pow(max(0,1-cap_progress(x)),2):1
 ) [
  body_x(x)*head_length_scale,
- side*(y0 -eye +brow*.55+cheek*.8 +nose*.25-mouth_indent(x,t)),
- z0 +brow*.70-eye*.26+cheek*.20+nose*.5
+ side*(y0 -eye +brow*.55+cheek*.8*tip_fade +nose*.25*tip_fade-mouth_indent(x,t)*tip_fade),
+ z0 +brow*.70-eye*.26+cheek*.20*tip_fade+nose*.5*tip_fade
 ];
 M=longitudinal_steps;
 N=per_side_steps;
 R=2*N;
-function x_at(i)=-54+(58+54)*i/M;
+// Adaptively sample the nasal rounding: finer longitudinal rings near the tip.
+function x_at(i)=let(u=i/M, transition=0.71, neck=nose_tip_station-14)
+ u<=transition ? -54+(neck+54)*(u/transition)
+ : neck+(nose_tip_station-neck)*((u-transition)/(1-transition));
 function body_x(x) = x <= 15 ? x : 15 + (x-15)*snout_length_ratio;
 
 // Guard against accidentally reversing or duplicating X control stations.
@@ -134,7 +144,7 @@ function skin_vertex(i,j)=let(x=x_at(i))
 function vertex_index(i,j)=i*R+j;
 module head_skin(){
   pts=concat([for(i=[0:M],j=[0:R-1]) skin_vertex(i,j)],
-    [[-54*head_length_scale,0,0]],[[body_x(58)*head_length_scale,0,0]]);
+    [[-54*head_length_scale,0,0]],[[body_x(nose_tip_station)*head_length_scale,0,0]]);
   cap0=(M+1)*R; cap1=cap0+1;
   faces=concat(
     [for(i=[0:M-1],j=[0:R-1]) each [
