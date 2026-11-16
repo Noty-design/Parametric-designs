@@ -90,3 +90,22 @@ Next: compare head eye relief with original concept at consistent camera scales;
 - Local ignored evidence: _build/muzzle_concept_20261116/blunt_refinement_comparison.jpg, corrected_nose_camera_comparison.jpg, cad_selected.json and viewer_blunt_soft/report.json.
 - Dquark CAD and Viewer evidence: https://github.com/weaf/local-ai-orchestrator/actions/runs/43816307574
 - No push to the public Git remote.
+
+## Fuller 3D serpent head reconstruction (2026-11-16)
+
+- Owner compared the current OpenSCAD front and side screenshot with the original concept and reported the head still looked flat and mouse-like. Previous changes affected details more than the primary 3D silhouette.
+- Several uncommitted CAD trials were compared from three-quarter, side, top and nose-facing perspectives. The best evaluated candidate is soft_nose, which widens the anterior muzzle, builds volume in the forehead/cranium, and rounds the nose tip.
+- This is a substantive re-sculpt of head stations before x=68 and local dorsal/nose and lower-cheek features; the established torso/tail profile stations are retained and joint-free concept mode is unchanged.
+- Smooth gradual anterior station shortening now replaces the abrupt profile compression that contributed to the cylinder-like muzzle.
+- Body retains ivory #E4D1B6, eye inlays retain muted taupe #A38D79. No changes to Brepia Viewer or other model files.
+- Two Customizer metadata errors have been corrected: eye_inner_lift default 0.14 is now within its declared slider range and curve_amplitude default 24 within its slider range. Owner screenshot showed two warnings, but their actual error-log messages were not observed; this is the likely reason.
+- Verified OpenSCAD native head and body STL are watertight and volumetric; body STL 35428 triangles, and body volume changed by 8.677 percent relative to the previous candidate.
+- OpenSCAD head STL with the current Customizer defaults passed CAD geometry checks.
+- Production Brepia Viewer passed desktop and mobile import of full .scad, recognized 2 RGB colors, and reported no timeouts, page or console errors.
+- Visual similarity with concept is still subject to owner review; this is a technical checkpoint, not final visual acceptance.
+- Prior SHA256: ceeac6bed10e67f10bcdf837c90e90ae4d167c7df81bc6d164217a70d45f2cc1
+- Current SHA256: 7c98443afe44c4f3ca68004ec2aec2ca58f00dd6986e063645e41a3b728337bf
+- Render/QA evidence ignored by Git: _build/head_redesign_20261116/head_shape_comparison.jpg, head_broad_snout_comparison.jpg, cad_qa.json and viewer_soft_nose/report.json.
+- Dquark preview evidence: https://github.com/weaf/local-ai-orchestrator/actions/runs/43826543429
+- Dquark CAD and production Viewer evidence: https://github.com/weaf/local-ai-orchestrator/actions/runs/43826741217
+- Remote remains unpushed. No other models were changed by this commit.

@@ -17,7 +17,7 @@ head_width_scale=1.0;  // [0.85:0.05:1.25]
 body_width_scale=1.0;  // [0.85:0.05:1.25]
 head_height_scale=1.0; // [0.85:0.05:1.25]
 eye_depth=1.65; // [0.5:0.1:3.3]
-eye_inner_lift=0.14; // [0.2:0.02:0.85]
+eye_inner_lift=0.14; // [0:0.02:0.85]
 eye_rim_height=0.24; // [0:0.02:0.6]
 // Eye shape directly in longitudinal and vertical millimeter coordinates.
 eye_length_radius_mm=8.6; // [6:0.2:13]
@@ -25,32 +25,28 @@ eye_vertical_radius_mm=4.7; // [3:0.2:7]
 eye_center_height_mm=2.8; // [0:0.2:6] relative to head center
 eye_rise_per_mm=0.18; // [-0.2:0.02:0.35] posterior rise
 brow_height=0.68; // [0:0.1:2]
-curve_amplitude=24; // [0:1:22]
+curve_amplitude=24; // [0:1:30]
 section_step=1.45;
 ring_faces=64;
 // Station: x, half-width, full height, underside height
 profile_source=[
- [-20.5,0.95,2.00,1.43],
- [-20.0,2.25,3.20,1.43],
- [-19.0,2.90,4.45,1.43],
- [-18.0,3.60,5.40,1.43],
- [-17.2,4.10,5.90,1.30],
- [-16.0,4.85,6.60,1.20],
- [-14.5,5.60,7.0,1.14],
- [-12.0,6.30,7.6,1.07],
- [-10.0,6.70,8.0,1.00],
- [-8.5,7.35,8.4,0.96],
- [-5.6,8.25,9.3,0.92],
- [-2.5,9.15,10.1,0.87],
- [1.0,9.95,10.9,0.82],
- [6.0,11.15,12.1,0.77],
- [12.0,12.45,13.9,0.70],
- [19.0,14.00,15.9,0.65],
- [28.0,16.2,19.4,0.60],
- [38.0,17.6,20.6,0.65],
- [48.0,15.8,19.1,0.65],
- [58.0,11.3,16.9,0.70],
- [68.0,10.9,16.0,0.65],
+
+  [-23.000,0.650,1.350,1.380],
+  [-22.500,2.450,3.400,1.350],
+  [-21.000,3.850,5.100,1.290],
+  [-19.000,5.250,6.550,1.240],
+  [-17.000,6.450,8.100,1.160],
+  [-14.000,7.800,9.500,1.070],
+  [-10.000,9.100,10.900,0.980],
+  [-5.000,10.400,12.350,0.880],
+  [2.000,12.550,14.650,0.800],
+  [9.000,14.250,16.750,0.730],
+  [17.000,15.200,19.100,0.700],
+  [27.000,17.400,22.100,0.680],
+  [37.000,18.300,23.500,0.680],
+  [48.000,16.400,21.400,0.660],
+  [58.000,12.000,17.800,0.700],
+  [68.0,10.9,16.0,0.65],
  [80.0,12.5,18.7,0.60],
  [95.0,13.9,21.0,0.65],
  [112.0,14.0,21.6,0.65],
@@ -66,10 +62,10 @@ profile_source=[
 ];
 // Muzzle length: 0 is exactly v16. Default shortens the nose about 8 mm.
 muzzle_shortening_mm=11; // [0:1:12]
-function muzzle_map_t(x)=max(0,min(1,(19-x)/37));
+function muzzle_map_t(x)=max(0,min(1,(40-x)/63));
 function muzzle_map(x)=let(t=muzzle_map_t(x))
   x+muzzle_shortening_mm*(t*t*(3-2*t));
-// All body stations at x >= 19 mm are unchanged.
+// New head mapping eases shortening across x -23..40; stations >= 40 mm remain unchanged.
 profile=[for(p=profile_source) [muzzle_map(p[0]),p[1],p[2],p[3]]];
 
 function clamp(x,a,b)=max(a,min(b,x));
@@ -133,6 +129,10 @@ seam_positions=[59,84,110,136,162,187,210,232,252,271,289,301];
 function seam_dist(x)=min([for(j=seam_positions) abs(x-j)]);
 function seam_gain(x)=show_seams ?
   1-seam_fraction*exp(-pow(seam_dist(x)/seam_halfwidth,2)) : 1;
+// Local anatomical features: a raised dorsal bridge and filled lower jaw.
+// Both fade completely before the neck and leave torso/tail stations alone.
+function nasal_bridge(x,vert)=1.5*gaussian((x-7)/29)*pow(max(0,vert),2);
+function jaw_volume(x,a)=0.6*gaussian((x-25)/23)*gaussian(near_pair(a,325,215)/30);
 function surface_pt(x,a)=let(
     h=section_height(x)*seam_gain(x),hw=halfwidth(x)*seam_gain(x),
     n=x<58?2.12:2.0,
@@ -145,11 +145,11 @@ function surface_pt(x,a)=let(
     bb=brow(x,a),
     dd=nostril(x,a),
     ll=lip_line(x,a),
-    yoff=sign(radial)*(er+bb*0.8-ed-dd-ll+cheek_rounding(x,a))*abs(radial),
+    yoff=sign(radial)*(er+bb*0.8-ed-dd-ll+cheek_rounding(x,a)+jaw_volume(x,a))*abs(radial),
     ybase=hw*radial+yoff,
     slope=center_y_grad(x),
     norm=sqrt(1+slope*slope),
-    z=interp(x,3)+h/2+(h/2)*vert+bb*0.18-er*0.04-ed*0.08)
+    z=interp(x,3)+h/2+(h/2)*vert+bb*0.18-er*0.04-ed*0.08+nasal_bridge(x,vert))
   [x-(slope/norm)*ybase, center_y(x)+ybase/norm, z];
 x_first=profile[0][0];
 x_last=profile[len(profile)-1][0];
