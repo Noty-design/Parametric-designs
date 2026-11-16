@@ -73,3 +73,20 @@ Next: compare head eye relief with original concept at consistent camera scales;
 - Evidence (ignored local artifacts): _build/colored_eye_20261116/cad_validation.json, viewer_qa/report.json, colored_eye_variants.jpg.
 - Dquark CAD + Viewer proof: https://github.com/weaf/local-ai-orchestrator/actions/runs/43805929318
 - Concept likeness: still awaiting owner visual acceptance; mechanical joints, body and tail unchanged.
+
+## Snake head: natural muzzle and softer eyes (2026-11-16)
+
+- The active model remains the single Git-tracked organic_snake.scad file.
+- Owner screenshots exposed a mouse-like head, circular snout tip and eyes too dark and deep.
+- Changed the front head profile stations: small rounded tip with a fuller intermediate wedge instead of a cylindrical nose cap.
+- Reduced eye lens dimensions, switched the eye material to taupe #A38D79, and reduced eye socket depth, rim and cheek exaggeration.
+- The body material #E4D1B6, all body stations behind the anterior head, taper, tail, cosmetic seams and no-joint design are preserved.
+- Native OpenSCAD CAD PASS for body and head as watertight volumetric STL. Body faces: 34678; volume delta from previous colored source: 0.162 percent.
+- Additional head CAD PASS with user Customizer parameters: head_width_scale 0.90, head_height_scale 1.05, muzzle_shortening_mm 12, curve_amplitude 12, ring_faces 73, eye length 5.8, height 2.6, brow 0.9.
+- Production Brepia Viewer PASS on desktop 1280x800 and mobile 390x844, with 2 RGB colors and no timeout.
+- Concept visual likeness remains pending owner review. Do not call the model concept accepted yet.
+- Previous source SHA256: de17433e30d14072f9e9a942d7cbf4c7728d2f43158ff978bd714000026e5c56
+- New source SHA256: ceeac6bed10e67f10bcdf837c90e90ae4d167c7df81bc6d164217a70d45f2cc1
+- Local ignored evidence: _build/muzzle_concept_20261116/blunt_refinement_comparison.jpg, corrected_nose_camera_comparison.jpg, cad_selected.json and viewer_blunt_soft/report.json.
+- Dquark CAD and Viewer evidence: https://github.com/weaf/local-ai-orchestrator/actions/runs/43816307574
+- No push to the public Git remote.

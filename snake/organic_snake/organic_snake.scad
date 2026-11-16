@@ -8,30 +8,33 @@ $fn=48;
 view_mode="body"; // [body,head]
 // Material colors are visible in OpenSCAD F5 preview; STL does not carry colors.
 body_color="#E4D1B6";
-eye_color="#292B33";
+eye_color="#A38D79";
 show_eye_inlay=true; // [true,false]
-eye_inlay_length=7.2; // [5:0.2:10]
-eye_inlay_height=2.65; // [1.8:0.1:4.0]
+eye_inlay_length=5.8; // [5:0.2:10]
+eye_inlay_height=2.05; // [1.8:0.1:4.0]
 
 head_width_scale=1.0;  // [0.85:0.05:1.25]
 body_width_scale=1.0;  // [0.85:0.05:1.25]
 head_height_scale=1.0; // [0.85:0.05:1.25]
-eye_depth=2.8; // [0.5:0.1:3.3]
+eye_depth=1.65; // [0.5:0.1:3.3]
 eye_inner_lift=0.14; // [0.2:0.02:0.85]
-eye_rim_height=0.34; // [0:0.02:0.6]
+eye_rim_height=0.24; // [0:0.02:0.6]
 // Eye shape directly in longitudinal and vertical millimeter coordinates.
 eye_length_radius_mm=8.6; // [6:0.2:13]
 eye_vertical_radius_mm=4.7; // [3:0.2:7]
 eye_center_height_mm=2.8; // [0:0.2:6] relative to head center
 eye_rise_per_mm=0.18; // [-0.2:0.02:0.35] posterior rise
-brow_height=0.85; // [0:0.1:2]
+brow_height=0.68; // [0:0.1:2]
 curve_amplitude=24; // [0:1:22]
 section_step=1.45;
 ring_faces=64;
 // Station: x, half-width, full height, underside height
 profile_source=[
- [-18.0,1.75,4.25,1.48],
- [-17.2,3.65,5.65,1.30],
+ [-20.5,0.95,2.00,1.43],
+ [-20.0,2.25,3.20,1.43],
+ [-19.0,2.90,4.45,1.43],
+ [-18.0,3.60,5.40,1.43],
+ [-17.2,4.10,5.90,1.30],
  [-16.0,4.85,6.60,1.20],
  [-14.5,5.60,7.0,1.14],
  [-12.0,6.30,7.6,1.07],
@@ -111,7 +114,7 @@ function lip_line(x,a)=0.35*
     gaussian((x-19)/15)*
     gaussian(near_pair(a,330,210)/5.2);
 // Fuller, lower cheeks beneath the eyes; never new standalone blobs.
-function cheek_rounding(x,a)=2.0*
+function cheek_rounding(x,a)=1.70*
     gaussian((x-25)/13)*
     gaussian(near_pair(a,325,215)/23);
 function head_blend(x)=clamp((72-x)/14,0,1);
@@ -238,10 +241,10 @@ module eye_inlay(side=1) {
  points=concat(
    [for(r=[1:eye_rings],j=[0:eye_faces-1])
       eye_inlay_coord(360*j/eye_faces,r/eye_rings,side,
-         0.22+0.88*(1-pow(r/eye_rings,2)))],
+         0.12+0.35*(1-pow(r/eye_rings,2)))],
    [for(j=[0:eye_faces-1])
       eye_inlay_coord(360*j/eye_faces,1,side,-0.72)],
-   [eye_inlay_coord(0,0,side,1.17)],
+   [eye_inlay_coord(0,0,side,0.67)],
    [eye_inlay_coord(0,0,side,-0.72)]
  );
  outer=eye_rings*eye_faces;
