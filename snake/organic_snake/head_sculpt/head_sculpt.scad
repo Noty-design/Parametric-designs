@@ -23,6 +23,7 @@ nose_rounding_mm = 16.0; // [10:0.5:18]
 // Round the muzzle without changing the eye or rear cranial anatomy.
 nose_profile_softness = 1.0; // [0:0.05:1]
 nose_blend_start = 16.0; // [8:1:25]
+reptile_muzzle_definition = 1.0; // [0:0.05:1.4]
 /* [Sculpt details] */
 orbital_depth = 1.70;     // [0.5:0.1:3.0]
 brow_height = 1.52;       // [0:0.1:3.0]
@@ -124,6 +125,11 @@ function brow_ridge(x,t) = brow_height*gaussian((x-(-1.50))/14)*gaussian((t-2.42
 function cheek_full(x,t) = 1.24*gaussian((x-(-1.50))/19)*gaussian((t-4.18)/0.46);
 function nasal_bulge(x,t) = 1.0*gaussian((x-34)/11)*gaussian((t-2.7)/1.1);
 function mouth_indent(x,t) = 0.2*gaussian((x-32)/19)*gaussian((t-5.00)/0.073);
+// Locally sculpted reptilian rostrum. The orbit and skull rails are unchanged.
+function muzzle_gate(x) = let(u=clamp((x-14)/10,0,1)) u*u*(3-2*u);
+function muzzle_rostral_ridge(x,t) = reptile_muzzle_definition*muzzle_gate(x)*1.6*gaussian((x-28)/17)*gaussian((t-1.4)/1.25);
+function muzzle_mandible_tuck(x,t) = reptile_muzzle_definition*muzzle_gate(x)*2.3*gaussian((x-31)/19)*gaussian((t-7.2)/0.93);
+function muzzle_lip_inset(x,t) = reptile_muzzle_definition*muzzle_gate(x)*1.2*gaussian((x-28)/17)*gaussian((t-5.3)/0.64);
 function anatomical_surface_at(x,t,side) = let(
  r=cross_section(x),
  y0=rail_interp(r,t,0),
@@ -134,15 +140,15 @@ function anatomical_surface_at(x,t,side) = let(
  nose=nasal_bulge(x,t)
 ) [
  body_x(x)*head_length_scale,
- side*(y0 -eye +brow*.55+cheek*.8 +nose*.25-mouth_indent(x,t)),
- z0 +brow*.70-eye*.26+cheek*.20+nose*.5
+ side*(y0 -eye +brow*.55+cheek*.8 +nose*.25-mouth_indent(x,t)-muzzle_lip_inset(x,t)),
+ z0 +brow*.70-eye*.26+cheek*.20+nose*.5+muzzle_rostral_ridge(x,t)+muzzle_mandible_tuck(x,t)
 ];
 
 // The nasal tip is a *single anatomical surface*, not an inset oval ring.
 // Match the tangent of each 3D rail at the joining station (C1 transition),
 // then shrink its transverse dimensions continuously to the rounded apex.
 function nose_center_z() =
- let(c=nose_cap_start()) (anatomical_surface_at(c,0,1)[2] + anatomical_surface_at(c,8,1)[2])/2;
+ let(c=nose_cap_start()) (anatomical_surface_at(c,0,1)[2] + anatomical_surface_at(c,8,1)[2])/2 + 0.7*reptile_muzzle_definition;
 function surface_at(x,t,side) = x <= nose_cap_start() ?
  anatomical_surface_at(x,t,side) : let(
   a=nose_cap_start(), u=cap_progress(x), L=nose_rounding_mm,
