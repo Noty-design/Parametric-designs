@@ -149,6 +149,8 @@ function anatomical_surface_at(x,t,side) = let(
 // then shrink its transverse dimensions continuously to the rounded apex.
 function nose_center_z() =
  let(c=nose_cap_start()) (anatomical_surface_at(c,0,1)[2] + anatomical_surface_at(c,8,1)[2])/2 + 0.7*reptile_muzzle_definition;
+// Cache the anatomical nose cap centre: otherwise it is recomputed for every vertex.
+nasal_center_cached = nose_center_z();
 function surface_at(x,t,side) = x <= nose_cap_start() ?
  anatomical_surface_at(x,t,side) : let(
   a=nose_cap_start(), u=cap_progress(x), L=nose_rounding_mm,
@@ -158,7 +160,7 @@ function surface_at(x,t,side) = x <= nose_cap_start() ?
   deriv_y=(p[1]-pm[1])/0.30,
   deriv_z=(p[2]-pm[2])/0.30,
   tangent=L*u*pow(1-u,2),
-  zc=nose_center_z()
+  zc=nasal_center_cached
  ) [
   body_x(x)*head_length_scale,
   p[1]*r + deriv_y*tangent,
