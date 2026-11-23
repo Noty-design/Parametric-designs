@@ -1,0 +1,26 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "Ny uppsättning 1": {
+            "$fn": "72",
+            "bevel_end_z": "1.8999999999999999",
+            "bevel_start_z": "1",
+            "body_height": "6.2000000000000002",
+            "body_length": "12",
+            "body_shape": "rounded",
+            "body_width": "8",
+            "clearance_xy": "0.34999999999999998",
+            "clearance_z": "0.40000000000000002",
+            "corner_radius": "1.6000000000000001",
+            "male_offset": "10.800000000000001",
+            "neck_width": "2.7000000000000002",
+            "pin_radius": "1.7",
+            "retainer_base_height": "0.84999999999999998",
+            "retainer_radius": "2.6000000000000001",
+            "ring_height": "4.75",
+            "ring_outer_radius": "4.25",
+            "segment_pitch": "20",
+            "segments": "8"
+        }
+    }
+}

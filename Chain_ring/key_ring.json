@@ -1,0 +1,75 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "Ny uppsättning 1": {
+            "$fn": "64",
+            "base_flatten_amount": "0.10000000000000001",
+            "cross_section_segments": "16",
+            "end_cap_color": "SlateGray",
+            "end_gap_angle": "5",
+            "flat_print_base": "true",
+            "loop_clearance_factor": "2.6000000000000001",
+            "loop_count": "1",
+            "ring_color": "DarkSlateGray",
+            "ring_outer_diameter": "5",
+            "segments_per_loop": "96",
+            "wire_diameter": "1.5"
+        },
+        "Ny uppsättning 2": {
+            "$fn": "64",
+            "base_flatten_amount": "0.10000000000000001",
+            "cross_section_segments": "16",
+            "end_cap_color": "SlateGray",
+            "end_gap_angle": "5",
+            "flat_print_base": "true",
+            "loop_clearance_factor": "2.6000000000000001",
+            "loop_count": "1",
+            "ring_color": "DarkSlateGray",
+            "ring_outer_diameter": "5",
+            "segments_per_loop": "96",
+            "wire_diameter": "1.5"
+        },
+        "Ny uppsättning 3": {
+            "$fn": "64",
+            "base_flatten_amount": "0.10000000000000001",
+            "cross_section_segments": "16",
+            "end_cap_color": "SlateGray",
+            "end_gap_angle": "5",
+            "flat_print_base": "true",
+            "loop_clearance_factor": "2.6000000000000001",
+            "loop_count": "1",
+            "ring_color": "DarkSlateGray",
+            "ring_outer_diameter": "5",
+            "segments_per_loop": "96",
+            "wire_diameter": "1.5"
+        },
+        "Ny uppsättning 4": {
+            "$fn": "64",
+            "base_flatten_amount": "0.10000000000000001",
+            "cross_section_segments": "48",
+            "end_cap_color": "SlateGray",
+            "end_gap_angle": "5",
+            "flat_print_base": "true",
+            "loop_clearance_factor": "2.7600000000000002",
+            "loop_count": "1.3999999999999999",
+            "ring_color": "DarkSlateGray",
+            "ring_outer_diameter": "3",
+            "segments_per_loop": "192",
+            "wire_diameter": "1.5"
+        },
+        "Ny uppsättning 5": {
+            "$fn": "64",
+            "base_flatten_amount": "0.10000000000000001",
+            "cross_section_segments": "48",
+            "end_cap_color": "SlateGray",
+            "end_gap_angle": "5",
+            "flat_print_base": "true",
+            "loop_clearance_factor": "3.5",
+            "loop_count": "1.3999999999999999",
+            "ring_color": "DarkSlateGray",
+            "ring_outer_diameter": "5",
+            "segments_per_loop": "192",
+            "wire_diameter": "0.40000000000000002"
+        }
+    }
+}

@@ -1,8 +1,0 @@
-# Generated geometries and local comparison output
-*.stl
-*.3mf
-*.png
-*.jpg
-*.jpeg
-*.zip
-_build/

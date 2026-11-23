@@ -22,7 +22,7 @@
 // Number of articulated bodies printed together. Begin with three for a fit test.
 segments = 3;            // Start with 3; change to 6, 10, ... later
 // 2D body outline: rounded rectangle, tapered polygon, or six-sided profile.
-body_shape = "rounded"; // "rounded", "tapered", or "hex"
+body_shape = "rounded"; // ["rounded", "tapered", or "hex"]
 // Length of an individual link body along X, excluding the hinge.
 body_length = 12;
 // Maximum link-body width in Y.
@@ -92,7 +92,9 @@ module segment_outline(index=0) {
             [ body_length/2, -body_width*0.50]
         ]);
     } else {
-        circle(d=body_width, $fn=6);
+        // Match the hex length to body_length while preserving body_width.
+        scale([body_length/body_width, 1])
+            circle(d=body_width, $fn=6);
     }
 }
 

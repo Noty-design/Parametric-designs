@@ -17,15 +17,15 @@ include <BOSL2/skin.scad>
 
 /* [Ringens mått] */
 // Ytterdiameter på nyckelringen.
-ring_outer_diameter = 5;       // [5:1:100]
+ring_outer_diameter = 5;       // [2:1:100]
 // Diameter på den runda tråden som bildar ringen.
-wire_diameter = 1.5;              // [1:0.25:10]
+wire_diameter = 1.5;              // [0.4:0.25:10]
 // Antal spiralvarv/loopar i nyckelringen.
 loop_count = 1.4;                 // [1:1:5]
 // Öppningsvinkel mellan spiralens ändar för att likna en split-ring.
 end_gap_angle = 5;             // [5:1:90]
 // Extra radialt avstånd mellan varven, som andel av tråddiametern.
-loop_clearance_factor = 2.6;   // [0:0.02:0.6]
+loop_clearance_factor = 2.6;   // [0:0.02:5]
 
 /* [Utskrifts- och detaljinställningar] */
 // Antal punkter per varv längs spiralen.
