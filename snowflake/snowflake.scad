@@ -122,6 +122,7 @@ export_component = "all"; // [all:Show both materials, base:Base only, accent:Th
 slot_clearance = 0.30; // [0.10:0.05:0.80]
 
 /* [Assembly preview] */
+assembled_first_color = "#93D2F3";
 assembled_second_color = "#93D2F3";
 
 /* [Hidden] */
@@ -566,7 +567,7 @@ module panel_bottom_accent(slot_direction, with_hanger, n, seed) {
 // Export the two non-overlapping materials separately for slicer assembly.
 // In Overlay mode the older individual upper/lower exports remain available.
 module printable_panel(slot_direction, with_hanger, n = design_number,
-                       seed = variation_seed, panel_color = "#E8F5FF") {
+                       seed = variation_seed, panel_color = assembled_first_color) {
     if (export_component == "all" || export_component == "base")
         color(panel_color) panel_base(slot_direction, with_hanger, n, seed);
     if (accent_enabled) {
@@ -606,7 +607,7 @@ module assembled_preview(n = design_number, seed = variation_seed, selected_part
         if (selected_parts == "both" || selected_parts == "panel_a")
             rotate([90, 0, 0])
                 translate([0, 0, -full_panel_height / 2])
-                    printable_panel("top", false, n, seed, "#E8F5FF");
+                    printable_panel("top", false, n, seed, assembled_first_color);
         if (selected_parts == "both" || selected_parts == "panel_b")
             rotate([0, 0, 90]) rotate([90, 0, 0])
                 translate([0, 0, -full_panel_height / 2])

@@ -50,6 +50,8 @@
             "accent_raise_sides": "both",
             "accent_scale": "0.99",
             "arm_thickness_factor": "1.0",
+            "assembled_first_color": "#fffafa",
+            "assembled_second_color": "#fffafa",
             "branch_density_factor": "1.0",
             "branch_length_factor": "1.0",
             "branch_thickness_factor": "1.0",
