@@ -138,10 +138,10 @@ accent_raise_height = panel_thickness * accent_raise_factor;
 // If accent is = follow the accent_raise_hight is set to 0.000000001 to work in brepia viewer correctly.
 accent_top_height = overlay_color && accent_sides != "bottom" ? accent_height :
                     through_color && accent_height_mode == "raised" &&
-                    accent_raise_sides != "bottom" ? accent_raise_height : 0.000000001;
+                    accent_raise_sides != "bottom" ? accent_raise_height : 0.00000000001;
 accent_bottom_height = overlay_color && accent_sides != "top" ? accent_height :
                        through_color && accent_height_mode == "raised" &&
-                       accent_raise_sides != "top" ? accent_raise_height : 0.000000001;
+                       accent_raise_sides != "top" ? accent_raise_height : 0.00000000001;
 // All exported material bodies share one coordinate system. Their combined
 // outside height determines the width of interlocking slots.
 full_panel_height = panel_thickness + raised_height + accent_top_height + accent_bottom_height;
