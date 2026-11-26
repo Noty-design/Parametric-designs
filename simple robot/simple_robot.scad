@@ -1,6 +1,11 @@
 /* [Utskrift & Layout] */
-layout_mode = "utskrift"; // [monterad, utskrift]
-joint_clearance = 0.2; // [0.0:0.05:0.6]
+layout_mode = "utskrift"; // [monterad, utskrift, ledtest]
+// Material profile for ball joints; Manual uses joint_clearance.
+material_profile = "PLA"; // [PLA,PETG,Manual]
+// Retention at the entrance, independent of bearing clearance.
+joint_fit = "Medium"; // [Loose,Medium,Tight]
+// Radial bearing clearance in Manual, and clearance for the other joint types (mm).
+joint_clearance = 0.2; // [0.1:0.05:0.6]
 del_avstand = 16; // [5:1:40]
 
 /* [Dimensioner & Form] */
@@ -57,8 +62,31 @@ calf_w = bt + s(2);
 calf_d = bt + s(4);
 calf_h = th * 0.78;
 
-if (layout_mode == "utskrift") {
-    pad = s(del_avstand);
+/* [Hidden] */
+// All ball joints use a common size bounded by the narrowest socket land.
+ball_c = material_profile == "PLA" ? 0.25 : material_profile == "PETG" ? 0.20 : joint_clearance;
+ball_wall = max(0.9, s(1.1));
+ball_relief = max(0.65, s(0.85));
+ball_slot = max(0.75, s(0.9));
+ball_land = min(uarm_w/2, uarm_d/2, thigh_w/2, thigh_d/2, pelvis_w/2-tw/4, pelvis_d/2, td/2);
+ball_r = min(s(4.8), ball_land-ball_wall-ball_c);
+ball_depth = ball_r*0.62;
+ball_center = ball_r*1.38;
+ball_gap = joint_style == "kulled" ? ball_center-ball_depth : 0;
+ball_flex_depth = ball_depth+ball_r*0.65;
+ball_stem = ball_r*0.60;
+ball_lead = min(0.55, ball_r*0.12);
+eps = 0.025;
+function ball_deficit(fit) = min(ball_r*0.10,
+    (fit=="Loose" ? 0.20 : fit=="Medium" ? 0.35 : 0.45) + (material_profile=="PETG" ? 0.05 : 0));
+assert(joint_style!="kulled" || ball_r>=2.0, "Ball joint is too small for the selected dimensions and nozzle; increase scale or limb width.");
+assert(joint_style!="kulled" || ball_depth+ball_r+ball_c < min(uarm_h,thigh_h,pelvis_h), "Ball socket exceeds the available part length.");
+
+if (layout_mode == "ledtest") {
+    assert(joint_style=="kulled", "Select kulled for the calibration plate.");
+    joint_test_plate();
+} else if (layout_mode == "utskrift") {
+    pad = max(s(del_avstand), joint_style=="kulled" ? ball_center+ball_r+s(3) : s(del_avstand));
     
     // Överkropp
     translate([0, 0, td/2]) rotate([90,0,0]) color(armor_color) part_torso();
@@ -75,8 +103,8 @@ if (layout_mode == "utskrift") {
     translate([arm_x, 0, uarm_d/2]) rotate([90,0,0]) color(armor_color) part_upper_arm(-1);
     
     larm_y = -(uarm_h/2 + larm_h/2 + pad);
-    translate([-arm_x, larm_y, larm_d/2]) rotate([90,0,0]) color(armor_color) part_lower_arm(1);
-    translate([arm_x, larm_y, larm_d/2]) rotate([90,0,0]) color(armor_color) part_lower_arm(-1);
+    translate([-arm_x, larm_y, larm_d*0.55]) rotate([90,0,0]) color(armor_color) part_lower_arm(1);
+    translate([arm_x, larm_y, larm_d*0.55]) rotate([90,0,0]) color(armor_color) part_lower_arm(-1);
     
     // Ben (Längre ut)
     leg_x = arm_x + max(uarm_w/2, larm_w/2) + thigh_w/2 + pad;
@@ -95,45 +123,59 @@ if (layout_mode == "utskrift") {
 module assembled_robot() {
     part_torso();
     
-    translate([0, 0, th/2 + head_h/2]) part_head();
+    translate([0, 0, th/2 + head_h/2 + ball_gap]) part_head();
     
-    translate([0, 0, -th/2 - pelvis_h/2]) {
+    translate([0, 0, -th/2 - pelvis_h/2 - ball_gap]) {
         part_pelvis();
         // Höger ben
-        translate([tw/4, 0, -pelvis_h/2 - thigh_h/2]) { 
+        translate([tw/4, 0, -pelvis_h/2 - thigh_h/2 - ball_gap]) { 
             part_thigh(1);
-            translate([0, 0, -thigh_h/2 - calf_h/2]) part_calf(1);
+            translate([0, 0, -thigh_h/2 - calf_h/2 - ball_gap]) part_calf(1);
         }
         // Vänster ben
-        translate([-tw/4, 0, -pelvis_h/2 - thigh_h/2]) {
+        translate([-tw/4, 0, -pelvis_h/2 - thigh_h/2 - ball_gap]) {
             part_thigh(-1);
-            translate([0, 0, -thigh_h/2 - calf_h/2]) part_calf(-1);
+            translate([0, 0, -thigh_h/2 - calf_h/2 - ball_gap]) part_calf(-1);
         }
     }
     
     // Höger Arm
-    translate([tw/2 + uarm_w/2, 0, th*0.25 - uarm_h*0.3]) {
+    translate([tw/2 + uarm_w/2 + ball_gap, 0, th*0.25 - uarm_h*0.3]) {
         part_upper_arm(1);
-        translate([0, 0, -uarm_h/2 - larm_h/2]) part_lower_arm(1);
+        translate([0, 0, -uarm_h/2 - larm_h/2 - ball_gap]) part_lower_arm(1);
     }
     // Vänster Arm
-    translate([-tw/2 - uarm_w/2, 0, th*0.25 - uarm_h*0.3]) {
+    translate([-tw/2 - uarm_w/2 - ball_gap, 0, th*0.25 - uarm_h*0.3]) {
         part_upper_arm(-1);
-        translate([0, 0, -uarm_h/2 - larm_h/2]) part_lower_arm(-1);
+        translate([0, 0, -uarm_h/2 - larm_h/2 - ball_gap]) part_lower_arm(-1);
     }
 }
 
 // ==========================================
 // Mekaniska Leder (Skalade och Optimerade)
 // ==========================================
-module socket_cut() {
+module socket_cut(fit=joint_fit) {
     js = skala;
     c = joint_clearance;
     if (joint_style == "kulled") {
-        translate([0,0,-6.5*js]) sphere(r=6*js+c, $fn=32);
-        translate([0,0,-8*js]) cylinder(h=9*js, r=4.5*js+c, $fn=32);
-        translate([0,0,-4*js]) cube([16*js, 1.5*js+c, 12*js], center=true);
-        translate([0,0,-4*js]) cube([1.5*js+c, 16*js, 12*js], center=true);
+        // Independent flexible petals: a spherical bearing, a shallow retaining
+        // throat, a lead-in, an annular isolation groove and four radial slots.
+        seat = ball_r+ball_c;
+        throat = ball_r-ball_deficit(fit);
+        collar = seat+ball_wall;
+        // Spherical seat and straight entry.
+        translate([0,0,-ball_depth]) sphere(r=seat, $fn=48);
+        translate([0,0,-ball_depth]) cylinder(h=ball_depth+eps, r=throat, $fn=48);
+        translate([0,0,-ball_lead]) cylinder(h=ball_lead+eps, r1=throat, r2=ball_r+0.20, $fn=48);
+        // The moat isolates the spring fingers from the surrounding armour.
+        // Stop above the seat bottom to retain a continuous anchored root.
+        translate([0,0,-ball_flex_depth]) difference() {
+            cylinder(h=ball_flex_depth+eps,r=collar+ball_relief,$fn=48);
+            translate([0,0,-eps]) cylinder(h=ball_flex_depth+3*eps,r=collar,$fn=48);
+        }
+        for(a=[0,90,180,270]) rotate([0,0,a])
+            translate([0,-ball_slot/2,-ball_flex_depth+ball_slot/2])
+                cube([collar+ball_relief+eps,ball_slot,ball_flex_depth-ball_slot/2+eps]);
     } else if (joint_style == "utan_leder") {
         translate([0,0,-9*js]) cylinder(h=10*js, r=4.5*js+c, $fn=6);
     } else if (joint_style == "lankled") {
@@ -148,8 +190,11 @@ module socket_cut() {
 module plug_add() {
     js = skala;
     if (joint_style == "kulled") {
-        cylinder(h=6.5*js, r=4.5*js, $fn=32);
-        translate([0,0,6.5*js]) sphere(r=6*js, $fn=32);
+        // A narrower neck allows articulation; the ball stays solid.
+        // Positive overlap anchors the stem inside the rounded body.
+        anchor = max(0.8, s(0.8));
+        translate([0,0,-anchor]) cylinder(h=ball_center+anchor, r=ball_stem, $fn=48);
+        translate([0,0,ball_center]) sphere(r=ball_r, $fn=48);
     } else if (joint_style == "utan_leder") {
         cylinder(h=8*js, r=4.5*js, $fn=6);
     } else if (joint_style == "lankled") {
@@ -158,6 +203,25 @@ module plug_add() {
         translate([0,0,11.5*js]) rotate([90,0,0]) cylinder(h=14*js, r1=2*js, r2=0.5*js, center=true, $fn=16);
     } else if (joint_style == "snappled") {
         linear_extrude(8*js) ratchet_gear(4*js, 5.5*js, 8);
+    }
+}
+
+// Three independent socket/ball pairs printed in the same sideways orientation
+// as the actual robot. Left to right: Loose, Medium, Tight.
+module joint_test_plate() {
+    w=2*(ball_r+ball_c+ball_wall+ball_relief+1.2);
+    h=max(2*ball_r+4,ball_depth+ball_r+ball_c+2);
+    pitch=w+8;
+    for(i=[0:2]) {
+        fit=["Loose","Medium","Tight"][i];
+        translate([i*pitch,0,w/2]) rotate([90,0,0]) difference() {
+            translate([0,0,-h/2]) body_block(w,w,h,min(s(1),w/8));
+            socket_cut(fit);
+        }
+        translate([i*pitch,-h-ball_center-ball_r-5,w/2]) rotate([90,0,0]) union() {
+            translate([0,0,-h/2]) body_block(w,w,h,min(s(1),w/8));
+            plug_add();
+        }
     }
 }
 
@@ -283,7 +347,9 @@ module part_calf(side) {
     union() {
         body_block(calf_w, calf_d, calf_h, br);
         // Fot
-        translate([0, calf_d*0.4, -calf_h*0.4]) body_block(calf_w*1.1, calf_d*1.3, calf_h*0.22, br*0.8);
+        // Shift each foot outward only as much as required for a 0.8 mm gap.
+        foot_offset = max(0, (calf_w*1.1-tw/2+0.8)/2);
+        translate([side*foot_offset, calf_d*0.4, -calf_h*0.4]) body_block(calf_w*1.1, calf_d*1.3, calf_h*0.22, br*0.8);
         translate([0, 0, calf_h/2]) color(joint_color) plug_add();
     }
 }
